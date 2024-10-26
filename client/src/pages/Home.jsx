@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import BrowseCategories from "../components/services/BrowseCategories";
+import RecommendedProjects from "../components/services/RecommendedProjects";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
-  // State variables to manage input values
-  const [service, setService] = useState(""); // State for service input
-  const [city, setCity] = useState(""); // State for city input
-  const [isHovered, setIsHovered] = useState(false); // State for hover effect
+  const [service, setService] = useState("");
+  const [city, setCity] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleSearch = () => {
-    // Handle the search functionality
     console.log("Searching for:", service, "in", city);
-    // Implement any search logic here
   };
 
   return (
@@ -24,37 +23,43 @@ const Home = () => {
       }}
     >
       <Navbar />
-      <div className="flex flex-col lg:flex-row justify-between items-center p-12">
-        <div className="lg:w-1/2 space-y-6 text-white">
-          <h1 className="text-xl font-medium">
+      <div className="flex flex-col lg:flex-row justify-between items-center p-16 lg:p-24">
+        {/* Left Side - Text and Inputs */}
+        <div className="lg:w-1/2 space-y-8 text-white">
+          <h1 className="text-2xl lg:text-3xl font-semibold tracking-wide">
             Quality services at your doorstep.
           </h1>
-          <h2 className="text-5xl font-extrabold mt-4 leading-tight">
+          <h2 className="text-6xl lg:text-7xl font-bold mt-4 leading-snug">
             Explore Top-Rated Services Available in Your Local Area!
           </h2>
-          <p className="text-lg mt-4 max-w-xl">
+          <p className="text-xl lg:text-2xl mt-6 max-w-xl">
             Easily find the best services near you, with trusted professionals
             at your fingertips.
           </p>
 
-          <div className="flex justify-start mt-6">
-            <div className="flex space-x-4 bg-white p-4 rounded-lg border border-gray-300">
+          <div className="flex justify-start mt-8">
+            <div className="flex items-center space-x-4 bg-white p-2 rounded-lg border border-gray-300">
               <input
                 type="text"
                 placeholder="What service are you looking for?"
-                className="p-2 border border-gray-300 rounded-md outline-none text-black"
+                className="p-1 border border-gray-300 rounded-md outline-none text-black text-base"
                 value={service}
                 onChange={(e) => setService(e.target.value)}
               />
-              <input
-                type="text"
-                placeholder="City"
-                className="p-2 border border-gray-300 rounded-md outline-none text-black"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
+
+              <div className="relative">
+                <i className="fas fa-map-marker-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                <input
+                  type="text"
+                  placeholder="City"
+                  className="p-1 pl-10 border border-gray-300 rounded-md outline-none text-black text-base"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+
               <button
-                className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600"
+                className="bg-orange-500 text-white px-4 py-1 text-base font-semibold rounded-md hover:bg-orange-600"
                 onClick={handleSearch}
               >
                 Search
@@ -63,14 +68,16 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="lg:w-1/2 mt-8 lg:mt-0 lg:pl-8 flex justify-center">
+        <div className="lg:w-1/2 mt-10 lg:mt-0 lg:pl-8 flex justify-end">
+          {" "}
           <div
-            onMouseEnter={() => setIsHovered(true)} // Set hover state to true
-            onMouseLeave={() => setIsHovered(false)} // Set hover state to false
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             style={{
-              overflow: "hidden", // Prevent overflow
-              borderRadius: "0.5rem", // Rounded corners
-              border: "2px solid transparent", // Transparent border for spacing
+              overflow: "hidden",
+              borderRadius: "0.5rem",
+              border: "2px solid transparent",
+              marginLeft: "20px",
             }}
           >
             <img
@@ -78,10 +85,10 @@ const Home = () => {
               alt="Professional service"
               style={{
                 width: "100%",
-                maxWidth: "400px", // Adjust max width as needed
+                maxWidth: "450px",
                 borderRadius: "0.5rem",
-                transition: "transform 0.3s ease", // Smooth transition effect
-                transform: isHovered ? "scale(1.05)" : "scale(1)", // Scale image on hover
+                transition: "transform 0.3s ease",
+                transform: isHovered ? "scale(1.05)" : "scale(1)",
               }}
             />
           </div>
@@ -89,6 +96,7 @@ const Home = () => {
       </div>
 
       <BrowseCategories />
+      <RecommendedProjects />
     </div>
   );
 };
