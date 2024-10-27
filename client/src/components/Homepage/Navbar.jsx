@@ -2,22 +2,24 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar = ({ setActiveCategory }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleMouseEnter = () => {
-    setDropdownOpen(true); // Open the dropdown when hovering
+    setDropdownOpen(true);
   };
 
   const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev); // Toggle dropdown on click
+    setDropdownOpen((prev) => !prev);
+  };
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory(category);
+    setDropdownOpen(false); // Close the dropdown after selection
   };
 
   return (
-    <nav
-      className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4"
-      style={{ marginTop: "20px" }}
-    >
+    <nav className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4">
       <div className="text-xl font-bold flex items-center">
         <img
           src="src/assets/images/logo.png"
@@ -32,24 +34,21 @@ const Navbar = () => {
         <li>
           <Link to="/categories">Find A Professional</Link>
         </li>
-        <li
-          className="relative"
-          onMouseEnter={handleMouseEnter} // Opens on hover
-        >
+        <li className="relative" onMouseEnter={handleMouseEnter}>
           <span className="cursor-pointer" onClick={toggleDropdown}>
             All Category
           </span>
           {dropdownOpen && (
             <div
               className="absolute top-full mt-2 w-40 bg-white text-black border border-gray-200 shadow-lg rounded-md"
-              onMouseEnter={handleMouseEnter} // Keep open when hovering over dropdown
-              onMouseLeave={() => setDropdownOpen(false)} // Close when leaving dropdown
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={() => setDropdownOpen(false)}
             >
               <ul className="flex flex-col">
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
                   <Link
                     to="/categories/outdoor"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleCategoryClick("Outdoor")}
                   >
                     Outdoor
                   </Link>
@@ -57,7 +56,7 @@ const Navbar = () => {
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
                   <Link
                     to="/categories/indoor"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleCategoryClick("Indoor")}
                   >
                     Indoor
                   </Link>
@@ -65,7 +64,7 @@ const Navbar = () => {
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
                   <Link
                     to="/categories/plumbing"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleCategoryClick("Plumbing")}
                   >
                     Plumbing
                   </Link>
@@ -73,7 +72,7 @@ const Navbar = () => {
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
                   <Link
                     to="/categories/kitchen"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleCategoryClick("Kitchen")}
                   >
                     Kitchen
                   </Link>
@@ -81,7 +80,7 @@ const Navbar = () => {
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
                   <Link
                     to="/categories/renovation"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleCategoryClick("Renovation")}
                   >
                     Renovation
                   </Link>
