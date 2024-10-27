@@ -5,8 +5,12 @@ import { FaUserCircle } from "react-icons/fa";
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const handleMouseEnter = () => {
+    setDropdownOpen(true); // Open the dropdown when hovering
+  };
+
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+    setDropdownOpen((prev) => !prev); // Toggle dropdown on click
   };
 
   return (
@@ -30,27 +34,57 @@ const Navbar = () => {
         </li>
         <li
           className="relative"
-          onMouseEnter={toggleDropdown}
-          onMouseLeave={toggleDropdown}
+          onMouseEnter={handleMouseEnter} // Opens on hover
         >
-          <span className="cursor-pointer">All Category</span>
+          <span className="cursor-pointer" onClick={toggleDropdown}>
+            All Category
+          </span>
           {dropdownOpen && (
-            <div className="absolute top-full mt-2 w-40 bg-white text-black border border-gray-200 shadow-lg rounded-md">
+            <div
+              className="absolute top-full mt-2 w-40 bg-white text-black border border-gray-200 shadow-lg rounded-md"
+              onMouseEnter={handleMouseEnter} // Keep open when hovering over dropdown
+              onMouseLeave={() => setDropdownOpen(false)} // Close when leaving dropdown
+            >
               <ul className="flex flex-col">
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link to="/categories">Outdoor</Link>
+                  <Link
+                    to="/categories/outdoor"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Outdoor
+                  </Link>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link to="/categories">Indoor</Link>
+                  <Link
+                    to="/categories/indoor"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Indoor
+                  </Link>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link to="/categories">Plumbing</Link>
+                  <Link
+                    to="/categories/plumbing"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Plumbing
+                  </Link>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link to="/categories">Kitchen</Link>
+                  <Link
+                    to="/categories/kitchen"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Kitchen
+                  </Link>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link to="/categories">Renovation</Link>
+                  <Link
+                    to="/categories/renovation"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Renovation
+                  </Link>
                 </li>
               </ul>
             </div>
