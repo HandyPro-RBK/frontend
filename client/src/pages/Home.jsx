@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import BrowseCategories from "../components/services/BrowseCategories";
 import RecommendedProjects from "../components/services/RecommendedProjects";
+import ClientTestimonials from "../components/services/ClientTestimonials";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
@@ -97,6 +98,7 @@ const Home = () => {
 
       <BrowseCategories />
       <RecommendedProjects />
+      <ClientTestimonials />
     </div>
   );
 };
