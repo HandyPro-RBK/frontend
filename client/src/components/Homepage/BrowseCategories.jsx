@@ -1,9 +1,17 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
 
 const BrowseCategories = () => {
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("Plumbing");
+
+  // Update active category when navigating from navbar
+  useEffect(() => {
+    if (location.state?.selectedCategory) {
+      setActiveCategory(location.state.selectedCategory);
+    }
+  }, [location.state]);
 
   const categoryPills = [
     { id: 1, name: "Kitchen" },

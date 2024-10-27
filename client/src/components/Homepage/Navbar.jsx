@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const Navbar = ({ setActiveCategory }) => {
+const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleMouseEnter = () => {
     setDropdownOpen(true);
@@ -14,12 +15,15 @@ const Navbar = ({ setActiveCategory }) => {
   };
 
   const handleCategoryClick = (category) => {
-    setActiveCategory(category);
-    setDropdownOpen(false); // Close the dropdown after selection
+    setDropdownOpen(false);
+    navigate("/categories", { state: { selectedCategory: category } });
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4">
+    <nav
+      className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4"
+      style={{ marginTop: "20px" }}
+    >
       <div className="text-xl font-bold flex items-center">
         <img
           src="src/assets/images/logo.png"
@@ -31,9 +35,7 @@ const Navbar = ({ setActiveCategory }) => {
         <li>
           <Link to="/">Home</Link>
         </li>
-        <li>
-          <Link to="/categories">Find A Professional</Link>
-        </li>
+        <li className="cursor-default">Find A Professional</li>
         <li className="relative" onMouseEnter={handleMouseEnter}>
           <span className="cursor-pointer" onClick={toggleDropdown}>
             All Category
@@ -46,44 +48,29 @@ const Navbar = ({ setActiveCategory }) => {
             >
               <ul className="flex flex-col">
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link
-                    to="/categories/outdoor"
-                    onClick={() => handleCategoryClick("Outdoor")}
-                  >
+                  <span onClick={() => handleCategoryClick("Outdoor")}>
                     Outdoor
-                  </Link>
+                  </span>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link
-                    to="/categories/indoor"
-                    onClick={() => handleCategoryClick("Indoor")}
-                  >
+                  <span onClick={() => handleCategoryClick("Indoor")}>
                     Indoor
-                  </Link>
+                  </span>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link
-                    to="/categories/plumbing"
-                    onClick={() => handleCategoryClick("Plumbing")}
-                  >
+                  <span onClick={() => handleCategoryClick("Plumbing")}>
                     Plumbing
-                  </Link>
+                  </span>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link
-                    to="/categories/kitchen"
-                    onClick={() => handleCategoryClick("Kitchen")}
-                  >
+                  <span onClick={() => handleCategoryClick("Kitchen")}>
                     Kitchen
-                  </Link>
+                  </span>
                 </li>
                 <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <Link
-                    to="/categories/renovation"
-                    onClick={() => handleCategoryClick("Renovation")}
-                  >
+                  <span onClick={() => handleCategoryClick("Renovation")}>
                     Renovation
-                  </Link>
+                  </span>
                 </li>
               </ul>
             </div>
