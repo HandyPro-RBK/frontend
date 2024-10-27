@@ -14,6 +14,7 @@ const BrowseCategories = () => {
   ];
 
   const categories = [
+    // Plumbing Services
     {
       title: "Pipe Installation",
       category: "Plumbing",
@@ -34,15 +35,89 @@ const BrowseCategories = () => {
       category: "Plumbing",
       image: "src/assets/images/maintenance services.png",
     },
+    // Kitchen Services
     {
       title: "Kitchen Cabinets",
       category: "Kitchen",
-      image: "src/assets/images/kitchen_cabinets.png",
+      image: "src/assets/images/kitchen cabinets.jpg",
     },
     {
       title: "Tile Installation",
       category: "Kitchen",
-      image: "src/assets/images/tile_installation.png",
+      image: "src/assets/images/Tile Installation.jpg",
+    },
+    {
+      title: "Countertop Installation",
+      category: "Kitchen",
+      image: "src/assets/images/Countertop Installation.jpg",
+    },
+    {
+      title: "Kitchen Remodeling",
+      category: "Kitchen",
+      image: "src/assets/images/Kitchen Remodeling.jpg",
+    },
+    // Indoor Services
+    {
+      title: "Interior Painting",
+      category: "Indoor",
+      image: "src/assets/images/Interior Painting.png",
+    },
+    {
+      title: "Drywall Installation",
+      category: "Indoor",
+      image: "src/assets/images/Drywall Installation.jpg",
+    },
+    {
+      title: "Flooring Installation",
+      category: "Indoor",
+      image: "src/assets/images/Flooring Installation.jpg",
+    },
+    {
+      title: "Indoor Landscaping",
+      category: "Indoor",
+      image: "src/assets/images/Indoor Landscaping.jpg",
+    },
+    // Outdoor Services
+    {
+      title: "Lawn Care",
+      category: "Outdoor",
+      image: "src/assets/images/Lawn Care.jpg",
+    },
+    {
+      title: "Deck Building",
+      category: "Outdoor",
+      image: "src/assets/images/Deck Building.jpg",
+    },
+    {
+      title: "Patio Installation",
+      category: "Outdoor",
+      image: "src/assets/images/Patio Installation.jpg",
+    },
+    {
+      title: "Garden Design",
+      category: "Outdoor",
+      image: "src/assets/images/Garden Design.png",
+    },
+    // Renovation Services
+    {
+      title: "Home Renovation",
+      category: "Renovation",
+      image: "src/assets/images/Home Renovation.jpg",
+    },
+    {
+      title: "Basement Finishing",
+      category: "Renovation",
+      image: "src/assets/images/Basement Finishing.jpg",
+    },
+    {
+      title: "Bathroom Remodeling",
+      category: "Renovation",
+      image: "src/assets/images/Bathroom Remodeling.jpg",
+    },
+    {
+      title: "Roofing Services",
+      category: "Renovation",
+      image: "src/assets/images/Roofing Services.jpg",
     },
   ];
 

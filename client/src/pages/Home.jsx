@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import BrowseCategories from "../components/services/BrowseCategories";
-import RecommendedProjects from "../components/services/RecommendedProjects";
-import ClientTestimonials from "../components/services/ClientTestimonials";
+import Navbar from "../components/Homepage/Navbar";
+import BrowseCategories from "../components/Homepage/BrowseCategories";
+import RecommendedProjects from "../components/Homepage/RecommendedProjects";
+import ClientTestimonials from "../components/Homepage/ClientTestimonials";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
@@ -19,8 +19,9 @@ const Home = () => {
       className="min-h-screen bg-cover bg-center text-blue-900 pt-4"
       style={{
         backgroundImage: "url('src/assets/images/background.png')",
-        backgroundSize: "cover",
+        backgroundSize: "contain",
         backgroundRepeat: "no-repeat",
+        backgroundPosition: "top center",
       }}
     >
       <Navbar />
