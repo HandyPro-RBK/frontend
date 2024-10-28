@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar = ({ onCategorySelect }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const Navbar = () => {
 
   const handleCategoryClick = (category) => {
     setDropdownOpen(false);
-    navigate("/categories", { state: { selectedCategory: category } });
+    onCategorySelect(category); // Pass category to modal
   };
 
   return (
@@ -47,31 +47,18 @@ const Navbar = () => {
               onMouseLeave={() => setDropdownOpen(false)}
             >
               <ul className="flex flex-col">
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <span onClick={() => handleCategoryClick("Outdoor")}>
-                    Outdoor
-                  </span>
-                </li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <span onClick={() => handleCategoryClick("Indoor")}>
-                    Indoor
-                  </span>
-                </li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <span onClick={() => handleCategoryClick("Plumbing")}>
-                    Plumbing
-                  </span>
-                </li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <span onClick={() => handleCategoryClick("Kitchen")}>
-                    Kitchen
-                  </span>
-                </li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">
-                  <span onClick={() => handleCategoryClick("Renovation")}>
-                    Renovation
-                  </span>
-                </li>
+                {["Outdoor", "Indoor", "Plumbing", "Kitchen", "Renovation"].map(
+                  (category) => (
+                    <li
+                      key={category}
+                      className="p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <span onClick={() => handleCategoryClick(category)}>
+                        {category}
+                      </span>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
           )}
