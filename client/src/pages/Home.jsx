@@ -6,16 +6,21 @@ import ClientTestimonials from "../components/Homepage/ClientTestimonials";
 import ExploreOurServiceCategories from "../components/Homepage/ExploreOurServiceCategories";
 import FAQSection from "../components/Homepage/FAQSection";
 import Footer from "../components/Homepage/Footer";
+import CitySelectionModal from "./CitySelectionModal";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
   const [service, setService] = useState("");
   const [city, setCity] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSearch = () => {
     console.log("Searching for:", service, "in", city);
   };
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <>
@@ -28,7 +33,7 @@ const Home = () => {
           backgroundPosition: "top center",
         }}
       >
-        <Navbar />
+        <Navbar onCategorySelect={openModal} />
         <div className="flex flex-col lg:flex-row justify-between items-center p-16 lg:p-24">
           {/* Left Side - Text and Inputs */}
           <div className="lg:w-1/2 space-y-8 text-white">
@@ -42,7 +47,6 @@ const Home = () => {
               Easily find the best services near you, with trusted professionals
               at your fingertips.
             </p>
-
             <div className="flex justify-start mt-8">
               <div className="flex items-center space-x-4 bg-white p-2 rounded-lg border border-gray-300">
                 <input
@@ -52,7 +56,6 @@ const Home = () => {
                   value={service}
                   onChange={(e) => setService(e.target.value)}
                 />
-
                 <div className="relative">
                   <i className="fas fa-map-marker-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
                   <input
@@ -63,7 +66,6 @@ const Home = () => {
                     onChange={(e) => setCity(e.target.value)}
                   />
                 </div>
-
                 <button
                   className="bg-orange-500 text-white px-4 py-1 text-base font-semibold rounded-md hover:bg-orange-600"
                   onClick={handleSearch}
@@ -73,9 +75,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-
           <div className="lg:w-1/2 mt-10 lg:mt-0 lg:pl-8 flex justify-end">
-            {" "}
             <div
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
@@ -108,6 +108,7 @@ const Home = () => {
       <ExploreOurServiceCategories />
       <FAQSection />
       <Footer />
+      <CitySelectionModal isOpen={isModalOpen} onClose={closeModal} />
     </>
   );
 };

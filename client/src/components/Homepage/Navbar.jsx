@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar = ({ onCategorySelect }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const Navbar = () => {
 
   const handleCategoryClick = (category) => {
     setDropdownOpen(false);
-    navigate("/categories", { state: { selectedCategory: category } });
+    onCategorySelect(); // Open the modal
   };
 
   return (
