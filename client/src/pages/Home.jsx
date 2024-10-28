@@ -3,7 +3,8 @@ import Navbar from "../components/Homepage/Navbar";
 import BrowseCategories from "../components/Homepage/BrowseCategories";
 import RecommendedProjects from "../components/Homepage/RecommendedProjects";
 import ClientTestimonials from "../components/Homepage/ClientTestimonials";
-import ExploreOurServiceCategories from "../components/Homepage/ExploreOurServiceCategories"; // Add this import
+import ExploreOurServiceCategories from "../components/Homepage/ExploreOurServiceCategories";
+import FAQSection from "../components/Homepage/FAQSection";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
@@ -104,6 +105,7 @@ const Home = () => {
         <ClientTestimonials />
       </div>
       <ExploreOurServiceCategories />
+      <FAQSection />
     </>
   );
 };
