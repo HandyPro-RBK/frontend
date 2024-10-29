@@ -32,7 +32,7 @@ const LoginProvider = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register-provider");
+        navigate("/");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
