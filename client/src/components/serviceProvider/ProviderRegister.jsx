@@ -89,7 +89,7 @@ const RegisterProvider = () => {
 
       const data = await response.json();
       localStorage.setItem("authToken", data.token);
-      navigate("/LoginProvider");
+      navigate("/");
     } catch (error) {
       setError(error.message || "An error occurred during registration");
       console.error("Registration error:", error);
