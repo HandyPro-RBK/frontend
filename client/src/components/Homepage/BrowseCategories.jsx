@@ -5,6 +5,37 @@ import CategoryCard from "./CategoryCard";
 const BrowseCategories = () => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("Plumbing");
+  const [categories, setCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [filteredServices, setFilteredServices] = useState([]);
+
+  // Fetch categories and services on component mount
+  useEffect(() => {
+    // Fetch categories
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/my-categories");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    // Fetch services
+    const fetchServices = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/my-services");
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    fetchCategories();
+    fetchServices();
+  }, []);
 
   // Update active category when navigating from navbar
   useEffect(() => {
@@ -13,126 +44,13 @@ const BrowseCategories = () => {
     }
   }, [location.state]);
 
-  const categoryPills = [
-    { id: 1, name: "Kitchen" },
-    { id: 2, name: "Plumbing" },
-    { id: 3, name: "Indoor" },
-    { id: 4, name: "Outdoor" },
-    { id: 5, name: "Renovation" },
-  ];
-
-  const categories = [
-    // Plumbing Services
-    {
-      title: "Pipe Installation",
-      category: "Plumbing",
-      image: "src/assets/images/Pipe installation.png",
-    },
-    {
-      title: "Leak Repair",
-      category: "Plumbing",
-      image: "src/assets/images/Leak Repair.png",
-    },
-    {
-      title: "Drainage Systems",
-      category: "Plumbing",
-      image: "src/assets/images/Drainage Systems.png",
-    },
-    {
-      title: "Maintenance Services",
-      category: "Plumbing",
-      image: "src/assets/images/maintenance services.png",
-    },
-    // Kitchen Services
-    {
-      title: "Kitchen Cabinets",
-      category: "Kitchen",
-      image: "src/assets/images/kitchen cabinets.jpg",
-    },
-    {
-      title: "Tile Installation",
-      category: "Kitchen",
-      image: "src/assets/images/Tile Installation.jpg",
-    },
-    {
-      title: "Countertop Installation",
-      category: "Kitchen",
-      image: "src/assets/images/Countertop Installation.jpg",
-    },
-    {
-      title: "Kitchen Remodeling",
-      category: "Kitchen",
-      image: "src/assets/images/Kitchen Remodeling.jpg",
-    },
-    // Indoor Services
-    {
-      title: "Interior Painting",
-      category: "Indoor",
-      image: "src/assets/images/Interior Painting.png",
-    },
-    {
-      title: "Drywall Installation",
-      category: "Indoor",
-      image: "src/assets/images/Drywall Installation.jpg",
-    },
-    {
-      title: "Flooring Installation",
-      category: "Indoor",
-      image: "src/assets/images/Flooring Installation.jpg",
-    },
-    {
-      title: "Indoor Landscaping",
-      category: "Indoor",
-      image: "src/assets/images/Indoor Landscaping.jpg",
-    },
-    // Outdoor Services
-    {
-      title: "Lawn Care",
-      category: "Outdoor",
-      image: "src/assets/images/Lawn Care.jpg",
-    },
-    {
-      title: "Deck Building",
-      category: "Outdoor",
-      image: "src/assets/images/Deck Building.jpg",
-    },
-    {
-      title: "Patio Installation",
-      category: "Outdoor",
-      image: "src/assets/images/Patio Installation.jpg",
-    },
-    {
-      title: "Garden Design",
-      category: "Outdoor",
-      image: "src/assets/images/Garden Design.png",
-    },
-    // Renovation Services
-    {
-      title: "Home Renovation",
-      category: "Renovation",
-      image: "src/assets/images/Home Renovation.jpg",
-    },
-    {
-      title: "Basement Finishing",
-      category: "Renovation",
-      image: "src/assets/images/Basement Finishing.jpg",
-    },
-    {
-      title: "Bathroom Remodeling",
-      category: "Renovation",
-      image: "src/assets/images/Bathroom Remodeling.jpg",
-    },
-    {
-      title: "Roofing Services",
-      category: "Renovation",
-      image: "src/assets/images/Roofing Services.jpg",
-    },
-  ];
-
-  // Filter categories based on the active category pill
-  const filteredCategories = categories.filter(
-    (category) => category.category === activeCategory
-  );
+  // Filter services based on active category
+  useEffect(() => {
+    const filtered = services.filter(
+      (service) => service.category.name === activeCategory
+    );
+    setFilteredServices(filtered);
+  }, [services, activeCategory]);
 
   return (
     <div className="py-16 px-12 bg-white">
@@ -146,7 +64,7 @@ const BrowseCategories = () => {
 
         {/* Category Pills */}
         <div className="flex flex-wrap gap-4 justify-center mb-12">
-          {categoryPills.map((category) => (
+          {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.name)}
@@ -163,11 +81,11 @@ const BrowseCategories = () => {
 
         {/* Service Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredCategories.map((category) => (
+          {filteredServices.map((service) => (
             <CategoryCard
-              key={category.title}
-              title={category.title}
-              image={category.image}
+              key={service.id}
+              title={service.name}
+              image={service.image}
             />
           ))}
         </div>

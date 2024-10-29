@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
 
-const Login = () => {
+const LoginUser = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -10,6 +10,7 @@ const Login = () => {
 
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     setFormData({
@@ -31,7 +32,7 @@ const Login = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register");
+        navigate("/");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
@@ -42,6 +43,26 @@ const Login = () => {
 
   return (
     <div className="flex">
+      {/* Home button */}
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+        title="Go to Home"
+      >
+        <svg
+          className="w-6 h-6 text-gray-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+          />
+        </svg>
+      </button>
       {/* Left side with logo */}
       <div className="w-1/2 bg-[#1034A6] h-screen flex items-center justify-center">
         <div className="text-white text-4xl font-bold">
@@ -56,6 +77,30 @@ const Login = () => {
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-semibold mb-2">Welcome Back!</h2>
           <p className="text-gray-600 mb-8">Sign In To Continue</p>
+
+          {/* Toggle buttons for User/Provider */}
+          <div className="flex w-full mb-8 bg-gray-100 rounded-full p-1">
+            <button
+              onClick={() => navigate("/login-user")}
+              className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                location.pathname === "/login-user"
+                  ? "bg-[#1034A6] text-white shadow-lg"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              User
+            </button>
+            <button
+              onClick={() => navigate("/login-provider")}
+              className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                location.pathname === "/login-provider"
+                  ? "bg-[#1034A6] text-white shadow-lg"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Provider
+            </button>
+          </div>
 
           {errorMessage && (
             <div className="text-red-500 mb-4 text-center">{errorMessage}</div>
@@ -128,7 +173,7 @@ const Login = () => {
             <span className="text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/register-user")}
                 className="text-[#FF8A00] hover:underline"
               >
                 Sign Up
@@ -141,4 +186,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginUser;
