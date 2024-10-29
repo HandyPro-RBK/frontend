@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
 
 const Login = () => {
@@ -10,6 +10,7 @@ const Login = () => {
 
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     setFormData({
@@ -31,7 +32,7 @@ const Login = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register");
+        navigate("/register-user");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
@@ -56,6 +57,30 @@ const Login = () => {
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-semibold mb-2">Welcome Back!</h2>
           <p className="text-gray-600 mb-8">Sign In To Continue</p>
+
+          {/* Toggle buttons for User/Provider */}
+          <div className="flex w-full mb-8 bg-gray-100 rounded-full p-1">
+            <button
+              onClick={() => navigate("/login-user")}
+              className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                location.pathname === "/login-user"
+                  ? "bg-[#1034A6] text-white shadow-lg"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              User
+            </button>
+            <button
+              onClick={() => navigate("/login-provider")}
+              className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                location.pathname === "/login-provider"
+                  ? "bg-[#1034A6] text-white shadow-lg"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Provider
+            </button>
+          </div>
 
           {errorMessage && (
             <div className="text-red-500 mb-4 text-center">{errorMessage}</div>
@@ -128,7 +153,7 @@ const Login = () => {
             <span className="text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/register-user")}
                 className="text-[#FF8A00] hover:underline"
               >
                 Sign Up
