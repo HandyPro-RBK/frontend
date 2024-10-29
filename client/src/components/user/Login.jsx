@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
 
-const Login = () => {
+const LoginUser = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,7 +32,7 @@ const Login = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register-user");
+        navigate("/");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
@@ -186,4 +186,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginUser;
