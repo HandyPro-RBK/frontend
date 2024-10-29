@@ -16,7 +16,11 @@ const Navbar = ({ onCategorySelect }) => {
 
   const handleCategoryClick = (category) => {
     setDropdownOpen(false);
-    onCategorySelect(category); // Pass category to modal
+    onCategorySelect(category);
+  };
+
+  const handleSignIn = () => {
+    navigate("/login-user");
   };
 
   return (
@@ -68,7 +72,10 @@ const Navbar = ({ onCategorySelect }) => {
         </li>
       </ul>
       <div className="flex items-center space-x-4">
-        <button className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600">
+        <button
+          onClick={handleSignIn}
+          className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600"
+        >
           Sign In
         </button>
         <FaUserCircle className="text-blue-900 text-3xl" />
