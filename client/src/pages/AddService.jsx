@@ -1,10 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import ProviderNavBar from '../components/serviceProvider/ProviderNavBar'
 
-const AddServiceForm = () => {
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          ×
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const AddServiceModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
-    providerId:1,
+    providerId: 1,
     description: '',
     categoryId: '',
     price: '',
@@ -14,11 +31,8 @@ const AddServiceForm = () => {
   });
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
   const [errors, setErrors] = useState({});
-  const handleFileChange = (e) => {
-    setImageFile(e.target.files[0]); 
-  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -31,6 +45,10 @@ const AddServiceForm = () => {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
+  };
+
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
   };
 
   const validateForm = () => {
@@ -51,72 +69,61 @@ const AddServiceForm = () => {
     }));
   };
 
-  
-  
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-  
+    e.preventDefault();
+
     const formDataImage = new FormData();
-    formDataImage.append('file', imageFile); 
-    formDataImage.append('upload_preset', 'ml_default2'); 
+    formDataImage.append('file', imageFile);
+    formDataImage.append('upload_preset', 'ml_default2');
+
     try {
       const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload`,
+        'https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload',
         {
           method: 'POST',
-          body: formDataImage // Send FormData directly without headers
+          body: formDataImage
         }
       );
-  
-      // Check if the response is OK
+
       if (!uploadRes.ok) {
         throw new Error(`HTTP error! status: ${uploadRes.status}`);
       }
-  
-     
+
       const imageData = await uploadRes.json();
-      const imageUrl = imageData.secure_url;   
+      const imageUrl = imageData.secure_url;
       const fullData = {
         ...formData,
-        image: imageUrl 
+        image: imageUrl
       };
-  
+
       const newErrors = validateForm();
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
       }
-  
-      // Log form data for debugging
-      Object.entries(fullData).forEach(([key, value]) => {
-        console.log(`${key}: ${value}`);
-      });
-  
-      // Send fullData to your backend
+
       const response = await fetch('http://127.0.0.1:3001/service/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(fullData) // Send the full data with image URL
+        body: JSON.stringify(fullData)
       });
-  
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`); // Updated to access response.status
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
-      setShowPopup(true);
-      console.log("Response from backend:", await response.json()); // Log the backend response
-  
+
+      onClose();
+      // You might want to refresh the services list here
     } catch (error) {
       console.error('Error:', error);
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <ProviderNavBar/>
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow mt-2">
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <div className="p-8">
         <h1 className="text-2xl font-bold mb-6">Add New Service</h1>
         
         <div className="space-y-6">
@@ -177,7 +184,7 @@ const AddServiceForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+            <label className="block text-sm font-medium text-gray-700">Duration (Hour)</label>
             <input
               type="number"
               name="duration"
@@ -188,10 +195,16 @@ const AddServiceForm = () => {
             />
             {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
           </div>
-          <input
-        type="file"
-        onChange={handleFileChange}
-      />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Image</label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="mt-1 block w-full"
+            />
+          </div>
+
           <button
             onClick={handleSubmit}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
@@ -200,14 +213,8 @@ const AddServiceForm = () => {
           </button>
         </div>
       </div>
-
-      {showPopup && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg">
-          Service added successfully!
-        </div>
-      )}
-    </div>
+    </Modal>
   );
 };
 
-export default AddServiceForm;
+export default AddServiceModal;

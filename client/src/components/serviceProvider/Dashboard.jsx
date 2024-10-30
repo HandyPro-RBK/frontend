@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import ProviderNavBar from "./ProviderNavBar";
 import FAQSection from "../Homepage/FAQSection";
 import Footer from "../Homepage/Footer";
+import AddServiceModal from "../../pages/AddService";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const [service, setService] = useState("");
   const [city, setCity] = useState("");
   const [isHovered, setIsHovered] = useState(false);
   const [services, setServices] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const itemsToShow = 4;
 
   const fetchServices = async () => {
     try {
@@ -29,20 +31,33 @@ const Dashboard = () => {
     console.log("Searching for:", service, "in", city);
   };
 
+  const handleNext = () => {
+    if (currentIndex + itemsToShow < services.length) {
+      setCurrentIndex(currentIndex + itemsToShow);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - itemsToShow);
+    }
+  };
+
   return (
     <>
+      {/* Section principale avec le fond bleu */}
       <div
-        className="min-h-screen bg-cover bg-center text-blue-900 pt-4"
+        className="w-full min-h-screen bg-cover bg-center text-blue-900 pt-4"
         style={{
           backgroundImage: "url('src/assets/images/background.png')",
-          backgroundSize: "contain",
+          backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "top center",
         }}
       >
         <ProviderNavBar />
         <div className="flex flex-col lg:flex-row justify-between items-center p-16 lg:p-24">
-          {/* Left Side - Text and Inputs */}
+          {/* Texte et inputs à gauche */}
           <div className="lg:w-1/2 space-y-8 text-white">
             <h1 className="text-2xl lg:text-3xl font-semibold tracking-wide">
               Quality services at your doorstep.
@@ -79,7 +94,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Right Side - Image */}
+          {/* Image à droite */}
           <div className="lg:w-1/2 mt-10 lg:mt-0 lg:pl-8 flex justify-end">
             <div
               onMouseEnter={() => setIsHovered(true)}
@@ -96,55 +111,92 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Section Title */}
-        <div className="text-center mb-8 mt-20">
+      {/* Conteneur pour la section des services avec espacement */}
+      <div className="my-20">
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold text-[#0A165E]">
-            Top Plumbers for Professionals
+            List of Your Post
           </h1>
-          <p className="text-gray-500 mt-2">
-            Discover a Network of Top Professionals Who Share Your Commitment to Quality
-          </p>
         </div>
 
-        {/* Services List */}
-        <div className="flex justify-center gap-6 mb-8">
-          {services.slice(services.length - 4, services.length).map((service, index) => (
-            <div
-              key={index}
-              className="w-72 bg-white p-4 rounded-lg shadow-lg text-left"
-            >
-              <div className="w-full h-40 bg-gray-200 rounded mb-4"></div>
-              <div className="mb-2 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-[#0A165E]">
-                  {service.name}
-                </h2>
-                <button className="text-orange-500 text-xl">♥</button>
+        {/* Conteneur flex pour les services et les flèches */}
+        <div className="flex items-center justify-center relative">
+          {/* Flèche précédente */}
+          <button 
+            className={`absolute left-0 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-full transition-transform duration-300 ${
+              currentIndex === 0 ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+            }`} 
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
+            style={{ top: "50%", marginLeft: "300px" }}
+          >
+            &lt;
+          </button>
+
+          {/* Conteneur des cartes de service */}
+          <div className="flex gap-6 mb-8">
+            {services.slice(currentIndex, currentIndex + itemsToShow).map((service, index) => (
+              <div
+                key={index}
+                className="w-72 bg-white p-4 rounded-lg shadow-lg text-left"
+              >
+                <img 
+                  src={service.image}
+                  alt={service.name}
+                  className="w-full h-40 object-cover rounded mb-4"
+                />
+                <div className="mb-2 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-[#0A165E]">
+                    {service.name}
+                  </h2>
+                  <button className="text-orange-500 text-xl">♥</button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="bg-orange-200 text-orange-500 px-2 py-1 rounded text-xs font-semibold">
+                    see detail
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="bg-orange-200 text-orange-500 px-2 py-1 rounded text-xs font-semibold">
-                  see detail
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Flèche suivante */}
+          <button 
+            className={`absolute right-0 transform translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-full transition-transform duration-300 ${
+              currentIndex + itemsToShow >= services.length ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+            }`} 
+            onClick={handleNext}
+            disabled={currentIndex + itemsToShow >= services.length}
+            style={{ top: "50%", marginRight: "300px" }}
+          >
+            &gt;
+          </button>
         </div>
 
-        {/* Add Service Button */}
-        <div className="flex justify-center mb-16">
+        {/* Bouton pour ajouter un service */}
+        <div className="flex justify-center">
           <button
             className="bg-orange-500 text-white py-3 px-8 rounded-full font-semibold"
-            onClick={() => navigate("/addService")}
+            onClick={() => setIsModalOpen(true)}
           >
             Add your service
           </button>
         </div>
       </div>
 
-      {/* FAQ Section */}
-      <FAQSection />
+      {/* Modal for adding service */}
+      <AddServiceModal 
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          fetchServices(); // Refresh the services list after adding a new service
+        }}
+      />
 
-      {/* Footer Section */}
+      {/* Sections FAQ et Footer */}
+      <FAQSection />
       <Footer />
     </>
   );
