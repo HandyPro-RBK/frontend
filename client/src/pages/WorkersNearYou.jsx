@@ -4,7 +4,7 @@ import Header from "../components/common/Header";
 import FilterSection from "../components/common/FilterSection";
 import WorkerCard from "../components/worker/WorkerCard";
 import { MapPin } from "lucide-react";
-import workerImage from "../assets/images/workers.png"; // Import the image correctly
+import workerImage from "../assets/images/worker.jpg";
 
 const WorkersNearYou = () => {
   const { categoryName, city } = useParams();

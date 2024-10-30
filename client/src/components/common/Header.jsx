@@ -31,7 +31,6 @@ const Header = () => {
       style={{ marginTop: -20 }}
     >
       <div className="flex items-center">
-        {/* Logo stays on the left, only the link to logo here */}
         <Link to="/" className="flex items-center">
           <img src={logo} alt="Logo" className="h-8 w-auto" />
         </Link>
@@ -50,7 +49,6 @@ const Header = () => {
             </Link>
           </li>
           <li className="relative flex items-center">
-            {/* Adding the down arrow symbol next to All Category */}
             <Link
               to="/all-categories"
               className="hover:text-blue-700 flex items-center"
