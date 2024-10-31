@@ -7,7 +7,7 @@ import BrowseCategories from "./components/Homepage/BrowseCategories";
 import WorkersNearYou from "./pages/WorkersNearYou";
 import AddService from "./pages/AddService";
 import Dashboard from "./components/serviceProvider/Dashboard";
-
+import Requests from "./components/serviceProvider/Requests";
 import RegisterUser from "./components/user/Register";
 import RegisterProvider from "./components/serviceProvider/ProviderRegister";
 import LoginUser from "./components/user/Login";
@@ -21,6 +21,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<BrowseCategories />} />
         <Route path="/ServiceProvider" element={<Dashboard />} />
+        <Route path="/requests" element={<Requests />} />
         <Route
           path="/categories/:categoryName/:city"
           element={<WorkersNearYou />}

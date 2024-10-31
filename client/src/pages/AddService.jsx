@@ -21,7 +21,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 const AddServiceModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
-    providerId: 1,
+    ServiceProviderId: 1,
     description: '',
     categoryId: '',
     price: '',
