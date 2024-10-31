@@ -13,7 +13,7 @@ const WorkerCard = ({ worker }) => {
     <div className="bg-white rounded-lg p-6 flex gap-4 shadow border border-gray-100">
       <Link to={`/worker/${worker.id}`} className="w-24 h-24">
         <img
-          src="/api/placeholder/96/96"
+          src={worker.image}
           alt={`${worker.name} profile`}
           className="w-full h-full rounded-lg object-cover"
         />
