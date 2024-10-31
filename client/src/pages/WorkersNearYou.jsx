@@ -1,10 +1,11 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "../components/common/Header";
-import FilterSection from "../components/common/FilterSection";
+import Header from "../components/worker/Header";
+import FilterSection from "../components/worker/FilterSection";
 import WorkerCard from "../components/worker/WorkerCard";
+import FeaturedCategories from "../components/worker/FeaturedCategories";
 import { MapPin } from "lucide-react";
-import workerImage from "../assets/images/worker.jpg";
+import workerImage from "../assets/images/worker.png";
 
 const WorkersNearYou = () => {
   const { categoryName, city } = useParams();
@@ -19,14 +20,16 @@ const WorkersNearYou = () => {
       reviews: 25,
       description: "Expert in plumbing repairs and installations",
       location: city,
+      image: "/assets/images/john_paul.jpg",
     },
     {
       id: 2,
-      name: "Emily Johnson",
+      name: "Michael Johnson",
       rating: 4.8,
       reviews: 34,
       description: "Specialized in both residential and commercial plumbing",
       location: city,
+      image: "/assets/images/michael_johnson.jpg",
     },
     {
       id: 3,
@@ -35,14 +38,16 @@ const WorkersNearYou = () => {
       reviews: 45,
       description: "Experienced with emergency plumbing and drain cleaning",
       location: city,
+      image: "/assets/images/david_lee.jpg",
     },
     {
       id: 4,
-      name: "Sophia Green",
+      name: "Samuel Green",
       rating: 4.6,
       reviews: 29,
       description: "Skilled in pipe fittings and water heater installations",
       location: city,
+      image: "/assets/images/samuel_green.jpg",
     },
   ];
 
@@ -94,6 +99,7 @@ const WorkersNearYou = () => {
           ))}
         </div>
       </div>
+      <FeaturedCategories />
     </div>
   );
 };
