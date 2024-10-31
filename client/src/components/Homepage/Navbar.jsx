@@ -32,7 +32,7 @@ const Navbar = ({ onCategorySelect }) => {
         <img
           src="src/assets/images/logo.png"
           alt="HandyPro"
-          className="h-8 mr-2"
+          className="h-10 w-auto"
         />
       </div>
       <ul className="flex space-x-6 text-lg">
