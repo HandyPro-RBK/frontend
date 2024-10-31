@@ -4,6 +4,7 @@ import Header from "../components/worker/Header";
 import FilterSection from "../components/worker/FilterSection";
 import WorkerCard from "../components/worker/WorkerCard";
 import FeaturedCategories from "../components/worker/FeaturedCategories";
+import FAQSection from "../components/Homepage/FAQSection";
 import { MapPin } from "lucide-react";
 import workerImage from "../assets/images/worker.png";
 
@@ -100,6 +101,7 @@ const WorkersNearYou = () => {
         </div>
       </div>
       <FeaturedCategories />
+      <FAQSection />
     </div>
   );
 };
