@@ -8,6 +8,10 @@ import FAQSection from "../components/Homepage/FAQSection";
 import { MapPin } from "lucide-react";
 import workerImage from "../assets/images/worker.png";
 import Footer from "../components/Homepage/Footer";
+import plumber1 from "../assets/images/plumber1.png";
+import plumber2 from "../assets/images/plumber2.png";
+import plumber3 from "../assets/images/plumber3.png";
+import plumber4 from "../assets/images/plumber4.png";
 
 const WorkersNearYou = () => {
   const { categoryName, city } = useParams();
@@ -21,7 +25,7 @@ const WorkersNearYou = () => {
       reviews: 25,
       description: "Expert in plumbing repairs and installations",
       location: city,
-      image: "/assets/images/john_paul.jpg",
+      image: plumber1,
     },
     {
       id: 2,
@@ -30,7 +34,7 @@ const WorkersNearYou = () => {
       reviews: 34,
       description: "Specialized in both residential and commercial plumbing",
       location: city,
-      image: "/assets/images/michael_johnson.jpg",
+      image: plumber2,
     },
     {
       id: 3,
@@ -39,7 +43,7 @@ const WorkersNearYou = () => {
       reviews: 45,
       description: "Experienced with emergency plumbing and drain cleaning",
       location: city,
-      image: "/assets/images/david_lee.jpg",
+      image: plumber3,
     },
     {
       id: 4,
@@ -48,7 +52,7 @@ const WorkersNearYou = () => {
       reviews: 29,
       description: "Skilled in pipe fittings and water heater installations",
       location: city,
-      image: "/assets/images/samuel_green.jpg",
+      image: plumber4,
     },
   ];
 
