@@ -11,11 +11,11 @@ const WorkerCard = ({ worker }) => {
 
   return (
     <div className="bg-white rounded-lg p-6 flex gap-4 shadow border border-black">
-      <Link to={`/worker/${worker.id}`} className="w-24 h-24">
+      <Link to={`/worker/${worker.id}`} className="w-32 h-32">
         <img
           src={worker.image}
           alt={`${worker.name} profile`}
-          className="w-full h-full rounded-lg object-cover"
+          className="w-full h-full rounded-lg object-cover object-top"
         />
       </Link>
       <div className="flex-1">
@@ -36,7 +36,7 @@ const WorkerCard = ({ worker }) => {
             <p className="text-sm text-[#1C1C1C] mt-1">{worker.description}</p>
             <span className="text-sm text-blue-900 mt-1">
               {worker.professionals} professionals available
-            </span>{" "}
+            </span>
           </div>
           <button className="hover:text-red-500">
             <Heart className="w-5 h-5 text-gray-400" />
