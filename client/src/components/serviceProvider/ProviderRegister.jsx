@@ -332,7 +332,7 @@ const RegisterProvider = () => {
 
               <div className="relative">
                 <input
-                  type="number"
+                  type="text"
                   name="age"
                   placeholder="Age"
                   onChange={handleChange}
