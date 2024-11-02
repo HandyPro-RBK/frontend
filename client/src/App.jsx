@@ -12,6 +12,7 @@ import RegisterUser from "./components/user/Register";
 import RegisterProvider from "./components/serviceProvider/ProviderRegister";
 import LoginUser from "./components/user/Login";
 import LoginProvider from "./components/serviceProvider/ProviderLogin";
+import History from "./components/serviceProvider/History";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/register-user" element={<RegisterUser />} />
         <Route path="/register-provider" element={<RegisterProvider />} />
         <Route path="/addService" element={<AddService />} />
+        <Route path="/history" element={<History />} />
         
       </Routes>
     </Router>

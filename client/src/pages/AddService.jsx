@@ -21,7 +21,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 const AddServiceModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
-    ServiceProviderId: 1,
+    providerId: 1,
     description: '',
     categoryId: '',
     price: '',
@@ -58,6 +58,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
     if (!formData.categoryId) newErrors.categoryId = 'Category is required';
     if (!formData.price || formData.price <= 0) newErrors.price = 'Valid price is required';
     if (!formData.duration || formData.duration <= 0) newErrors.duration = 'Valid duration is required';
+    if (!imageFile) newErrors.image = 'Image is required';
     return newErrors;
   };
 
@@ -71,6 +72,12 @@ const AddServiceModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     const formDataImage = new FormData();
     formDataImage.append('file', imageFile);
@@ -91,16 +98,15 @@ const AddServiceModal = ({ isOpen, onClose }) => {
 
       const imageData = await uploadRes.json();
       const imageUrl = imageData.secure_url;
+
+      // Calculate total price based on hourly rate and duration
+      const totalPrice = parseFloat(formData.price) * parseFloat(formData.duration);
+      
       const fullData = {
         ...formData,
-        image: imageUrl
+        image: imageUrl,
+        totalPrice: totalPrice
       };
-
-      const newErrors = validateForm();
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
 
       const response = await fetch('http://127.0.0.1:3001/service/create', {
         method: 'POST',
@@ -115,9 +121,22 @@ const AddServiceModal = ({ isOpen, onClose }) => {
       }
 
       onClose();
-      // You might want to refresh the services list here
+      // Reset form
+      setFormData({
+        name: '',
+        providerId: 1,
+        description: '',
+        categoryId: '',
+        price: '',
+        duration: '',
+        isActive: true,
+        image: ""
+      });
+      setImageFile(null);
+      setErrors({});
     } catch (error) {
       console.error('Error:', error);
+      setErrors(prev => ({ ...prev, submit: 'Error submitting form. Please try again.' }));
     }
   };
 
@@ -170,7 +189,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Price</label>
+            <label className="block text-sm font-medium text-gray-700">Price (Hour)</label>
             <input
               type="number"
               name="price"
@@ -194,6 +213,11 @@ const AddServiceModal = ({ isOpen, onClose }) => {
               className={`mt-1 block w-full rounded-md border ${errors.duration ? 'border-red-500' : 'border-gray-300'} p-2`}
             />
             {errors.duration && <p className="text-red-500 text-sm mt-1">{errors.duration}</p>}
+            {formData.price && formData.duration && (
+              <p className="text-sm text-gray-600 mt-1">
+                Total Price: ${(parseFloat(formData.price) * parseFloat(formData.duration)).toFixed(2)}
+              </p>
+            )}
           </div>
 
           <div>
@@ -201,13 +225,16 @@ const AddServiceModal = ({ isOpen, onClose }) => {
             <input
               type="file"
               onChange={handleFileChange}
-              className="mt-1 block w-full"
+              className={`mt-1 block w-full ${errors.image ? 'text-red-500' : ''}`}
             />
+            {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
           </div>
+
+          {errors.submit && <p className="text-red-500 text-sm">{errors.submit}</p>}
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
           >
             Add Service
           </button>
