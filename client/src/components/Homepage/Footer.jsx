@@ -4,9 +4,9 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 const Footer = () => {
   return (
     <footer
-      className="bg-blue-900 text-white py-10 px-8 mt-12"
+      className="w-full bg-blue-900 text-white py-10 px-8 mt-auto"
       style={{
-        backgroundImage: "url('src/assets/images/background.png')",
+        backgroundImage: "url('/src/assets/images/background.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -15,11 +15,10 @@ const Footer = () => {
         {/* Logo and Description */}
         <div className="col-span-1 flex flex-col items-start">
           <img
-            src="src/assets/images/Logo footer.png"
+            src="/src/assets/images/Logo footer.png"
             alt="HandyPro"
             className="h-12 mb-4"
-          />{" "}
-          {/* Update this path too */}
+          />
           <p className="text-sm">
             HandyPro connects you with trusted professionals to meet all your
             service needs right at your doorstep.
