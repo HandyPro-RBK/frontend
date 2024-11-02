@@ -130,7 +130,7 @@ const Dashboard = () => {
             }`} 
             onClick={handlePrevious}
             disabled={currentIndex === 0}
-            style={{ top: "50%", marginLeft: "300px" }}
+            style={{ top: "50%", marginLeft: "100px" }}
           >
             &lt;
           </button>
@@ -169,7 +169,7 @@ const Dashboard = () => {
             }`} 
             onClick={handleNext}
             disabled={currentIndex + itemsToShow >= services.length}
-            style={{ top: "50%", marginRight: "300px" }}
+            style={{ top: "50%", marginRight: "100px" }}
           >
             &gt;
           </button>
