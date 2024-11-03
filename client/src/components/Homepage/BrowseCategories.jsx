@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
+import ServiceDetailsModal from "./ServiceDetailsModal";
 
 const BrowseCategories = () => {
   const location = useLocation();
@@ -8,10 +9,11 @@ const BrowseCategories = () => {
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch categories and services on component mount
   useEffect(() => {
-    // Fetch categories
     const fetchCategories = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/my-categories");
@@ -22,7 +24,6 @@ const BrowseCategories = () => {
       }
     };
 
-    // Fetch services
     const fetchServices = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/my-services");
@@ -37,7 +38,7 @@ const BrowseCategories = () => {
     fetchServices();
   }, []);
 
-  // Update active category when navigating from navbar
+  // Update active category from navbar navigation
   useEffect(() => {
     if (location.state?.selectedCategory) {
       setActiveCategory(location.state.selectedCategory);
@@ -51,6 +52,20 @@ const BrowseCategories = () => {
     );
     setFilteredServices(filtered);
   }, [services, activeCategory]);
+
+  // Handle service click to open the modal
+  const handleServiceClick = async (serviceId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/my-services/${serviceId}`
+      );
+      const serviceDetails = await response.json();
+      setSelectedService(serviceDetails);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching service details:", error);
+    }
+  };
 
   return (
     <div className="py-16 px-12 bg-white">
@@ -86,10 +101,18 @@ const BrowseCategories = () => {
               key={service.id}
               title={service.name}
               image={service.image}
+              onClick={() => handleServiceClick(service.id)} // Pass click handler
             />
           ))}
         </div>
       </div>
+
+      {/* Service Details Modal */}
+      <ServiceDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        service={selectedService}
+      />
     </div>
   );
 };
