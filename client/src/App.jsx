@@ -1,5 +1,3 @@
-// App.jsx
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -13,12 +11,11 @@ import RegisterProvider from "./components/serviceProvider/ProviderRegister";
 import LoginUser from "./components/user/Login";
 import LoginProvider from "./components/serviceProvider/ProviderLogin";
 import History from "./components/serviceProvider/History";
-import ProviderProfile from "./components/serviceProvider/Profile"
+import ProviderProfile from "./components/serviceProvider/Profile";
 
 const App = () => {
   return (
     <Router>
-      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<BrowseCategories />} />
@@ -27,7 +24,6 @@ const App = () => {
         <Route
           path="/categories/:categoryName/:city"
           element={<WorkersNearYou />}
-        
         />
         <Route path="/login-user" element={<LoginUser />} />
         <Route path="/login-provider" element={<LoginProvider />} />
@@ -36,7 +32,6 @@ const App = () => {
         <Route path="/addService" element={<AddService />} />
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<ProviderProfile />} />
-        
       </Routes>
     </Router>
   );
