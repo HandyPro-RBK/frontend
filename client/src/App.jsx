@@ -13,7 +13,7 @@ import LoginProvider from "./components/serviceProvider/ProviderLogin";
 import History from "./components/serviceProvider/History";
 import ProviderProfile from "./components/serviceProvider/Profile"
 import ServiceDetail from './components/serviceProvider/ServiceDetail';
-
+import Messanger from './components/messages/Messenger'
 const App = () => {
   return (
     <Router>
@@ -26,6 +26,7 @@ const App = () => {
           path="/categories/:categoryName/:city"
           element={<WorkersNearYou />}
         />
+
         <Route path="/login-user" element={<LoginUser />} />
         <Route path="/login-provider" element={<LoginProvider />} />
         <Route path="/register-user" element={<RegisterUser />} />
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<ProviderProfile />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
+        <Route path="/messenger" element={<Messanger />} />
         
       </Routes>
     </Router>

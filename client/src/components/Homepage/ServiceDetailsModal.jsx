@@ -71,6 +71,12 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
                 disabled={isLoading}
               >
                 {isLoading ? "Processing..." : "Book Now"}
+              </button> <button
+                className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                onClick={()=> navigate("/messenger")}
+              
+              >
+                Contact
               </button>
             </div>
           </div>

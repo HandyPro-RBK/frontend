@@ -30,7 +30,8 @@ const LoginUser = () => {
         body: JSON.stringify(formData),
       });
       const data = await response.json();
-      if (data.token) {
+      if (data.token&&data.user) {
+        localStorage.setItem("role", data.user);
         localStorage.setItem("authToken", data.token);
         navigate("/");
       } else {
