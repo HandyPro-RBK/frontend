@@ -7,6 +7,8 @@ import DashboardSidebar from "./DashboardSidebar";
 const Dashboard = () => {
   const [summary, setSummary] = useState({
     recentBookings: [],
+    unreadNotifications: 0,
+    recentNotifications: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +29,8 @@ const Dashboard = () => {
       });
       setSummary({
         recentBookings: response.data.recentBookings || [],
+        unreadNotifications: response.data.unreadNotifications || 0,
+        recentNotifications: response.data.recentNotifications || [],
       });
 
       // Get any success message from the URL
@@ -153,6 +157,43 @@ const Dashboard = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">
+                  Recent Notifications{" "}
+                  {summary.unreadNotifications > 0 && (
+                    <span className="bg-red-500 text-white text-sm px-2 py-1 rounded-full ml-2">
+                      {summary.unreadNotifications}
+                    </span>
+                  )}
+                </h2>
+                <Link
+                  to="/dashboard/notifications"
+                  className="text-blue-900 hover:text-blue-700"
+                >
+                  View All
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {summary.recentNotifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg ${
+                      notification.read ? "bg-gray-50" : "bg-blue-50"
+                    }`}
+                  >
+                    <p className="font-medium">{notification.title}</p>
+                    <p className="text-gray-600 text-sm">
+                      {notification.message}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-2">
+                      {new Date(notification.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
