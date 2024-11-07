@@ -1,5 +1,3 @@
-// App.jsx
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -19,7 +17,6 @@ import ServiceDetail from './components/serviceProvider/ServiceDetail';
 const App = () => {
   return (
     <Router>
-      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<BrowseCategories />} />
@@ -28,7 +25,6 @@ const App = () => {
         <Route
           path="/categories/:categoryName/:city"
           element={<WorkersNearYou />}
-        
         />
         <Route path="/login-user" element={<LoginUser />} />
         <Route path="/login-provider" element={<LoginProvider />} />
