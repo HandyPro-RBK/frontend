@@ -13,6 +13,9 @@ import RegisterUser from "./components/user/Register";
 import RegisterProvider from "./components/serviceProvider/ProviderRegister";
 import LoginUser from "./components/user/Login";
 import LoginProvider from "./components/serviceProvider/ProviderLogin";
+import History from "./components/serviceProvider/History";
+import ProviderProfile from "./components/serviceProvider/Profile";
+import ServiceDetail from "./components/serviceProvider/ServiceDetail";
 import PrivateRoute from "./components/common/PrivateRoute";
 
 const App = () => {
@@ -29,6 +32,10 @@ const App = () => {
         <Route path="/login-provider" element={<LoginProvider />} />
         <Route path="/register-user" element={<RegisterUser />} />
         <Route path="/register-provider" element={<RegisterProvider />} />
+        <Route path="/addService" element={<AddService />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/profile" element={<ProviderProfile />} />
+        <Route path="/service/:id" element={<ServiceDetail />} />
 
         {/* Protected Dashboard Routes */}
         <Route
