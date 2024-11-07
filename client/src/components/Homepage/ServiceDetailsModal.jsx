@@ -17,7 +17,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
         "Please log in to book a service. Would you like to go to the login page?"
       );
       if (confirmLogin) {
-        navigate("/login");
+        navigate("/login-user");
       }
       return;
     }
