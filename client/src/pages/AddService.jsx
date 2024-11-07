@@ -21,7 +21,6 @@ const Modal = ({ isOpen, onClose, children }) => {
 const AddServiceModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
-    providerId: 1,
     description: '',
     categoryId: '',
     price: '',
@@ -29,26 +28,48 @@ const AddServiceModal = ({ isOpen, onClose }) => {
     isActive: true,
     image: ""
   });
+  
   const [imageFile, setImageFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
+    const token = localStorage.getItem("authToken");
     try {
-      const response = await fetch('http://127.0.0.1:3001/service/categories');
+      const response = await fetch('http://127.0.0.1:3001/service/categories', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setErrors(prev => ({ ...prev, categories: 'Failed to load categories' }));
     }
   };
 
   const handleFileChange = (e) => {
-    setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setErrors(prev => ({ ...prev, image: 'File size should be less than 5MB' }));
+        return;
+      }
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        setErrors(prev => ({ ...prev, image: 'Please upload only JPG, PNG, or GIF files' }));
+        return;
+      }
+      setImageFile(file);
+      setErrors(prev => ({ ...prev, image: null }));
+    }
   };
 
   const validateForm = () => {
@@ -58,7 +79,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
     if (!formData.categoryId) newErrors.categoryId = 'Category is required';
     if (!formData.price || formData.price <= 0) newErrors.price = 'Valid price is required';
     if (!formData.duration || formData.duration <= 0) newErrors.duration = 'Valid duration is required';
-    if (!imageFile) newErrors.image = 'Image is required';
+    if (!imageFile && !formData.image) newErrors.image = 'Image is required';
     return newErrors;
   };
 
@@ -68,6 +89,13 @@ const AddServiceModal = ({ isOpen, onClose }) => {
       ...prev,
       [name]: value
     }));
+    // Clear error for this field if it exists
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -79,11 +107,15 @@ const AddServiceModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    const formDataImage = new FormData();
-    formDataImage.append('file', imageFile);
-    formDataImage.append('upload_preset', 'ml_default2');
+    setLoading(true);
+    setErrors({});
 
     try {
+      // First upload image to Cloudinary
+      const formDataImage = new FormData();
+      formDataImage.append('file', imageFile);
+      formDataImage.append('upload_preset', 'ml_default2');
+
       const uploadRes = await fetch(
         'https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload',
         {
@@ -93,50 +125,62 @@ const AddServiceModal = ({ isOpen, onClose }) => {
       );
 
       if (!uploadRes.ok) {
-        throw new Error(`HTTP error! status: ${uploadRes.status}`);
+        throw new Error('Failed to upload image');
       }
 
       const imageData = await uploadRes.json();
       const imageUrl = imageData.secure_url;
 
-      // Calculate total price based on hourly rate and duration
+      // Calculate total price
       const totalPrice = parseFloat(formData.price) * parseFloat(formData.duration);
       
-      const fullData = {
-        ...formData,
-        image: imageUrl,
-        totalPrice: totalPrice
-      };
-
+      // Get auth token
+      const token = localStorage.getItem("authToken");
+      
+      // Create service with authorization
       const response = await fetch('http://127.0.0.1:3001/service/create', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(fullData)
+        body: JSON.stringify({
+          ...formData,
+          image: imageUrl,
+          price: totalPrice
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create service');
       }
 
-      onClose();
-      // Reset form
-      setFormData({
-        name: '',
-        providerId: 1,
-        description: '',
-        categoryId: '',
-        price: '',
-        duration: '',
-        isActive: true,
-        image: ""
-      });
-      setImageFile(null);
-      setErrors({});
+      const result = await response.json();
+      
+      if (result.success) {
+        onClose();
+        // Reset form
+        setFormData({
+          name: '',
+          description: '',
+          categoryId: '',
+          price: '',
+          duration: '',
+          isActive: true,
+          image: ""
+        });
+        setImageFile(null);
+        setErrors({});
+      }
     } catch (error) {
       console.error('Error:', error);
-      setErrors(prev => ({ ...prev, submit: 'Error submitting form. Please try again.' }));
+      setErrors(prev => ({ 
+        ...prev, 
+        submit: error.message || 'Failed to create service. Please try again.' 
+      }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,7 +233,7 @@ const AddServiceModal = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Price (Hour)</label>
+            <label className="block text-sm font-medium text-gray-700">Price per hour</label>
             <input
               type="number"
               name="price"
@@ -225,18 +269,26 @@ const AddServiceModal = ({ isOpen, onClose }) => {
             <input
               type="file"
               onChange={handleFileChange}
+              accept="image/jpeg,image/png,image/gif"
               className={`mt-1 block w-full ${errors.image ? 'text-red-500' : ''}`}
             />
             {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
           </div>
 
-          {errors.submit && <p className="text-red-500 text-sm">{errors.submit}</p>}
+          {errors.submit && (
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {errors.submit}
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Add Service
+            {loading ? 'Creating Service...' : 'Add Service'}
           </button>
         </div>
       </div>

@@ -30,10 +30,13 @@ function Profile() {
   const fetchProfileData = async () => {
     setError(null);
     setLoading(true);
+    const token = localStorage.getItem("authToken");
+    
     try {
-      const response = await fetch('http://localhost:3001/provider/profile/1', {
+      const response = await fetch('http://localhost:3001/provider/profile', {
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
       
@@ -53,11 +56,12 @@ function Profile() {
         identityCard: data.identityCard || '',
         password: ''
       };
+
       setFormData(mappedData);
       setOriginalData(mappedData);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      setError('Failed to load profile data. Please refresh the page.');
+      setError('Failed to load profile data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -86,7 +90,9 @@ function Profile() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64String = reader.result;
+        const base64String = reader.result
+          .replace('data:', '')
+          .replace(/^.+,/, '');
         resolve(base64String);
       };
       reader.onerror = (error) => reject(error);
@@ -113,59 +119,87 @@ function Profile() {
 
     try {
       setLoading(true);
+      setError(null);
+      
       const base64String = await convertFileToBase64(file);
+      const fullImageString = `data:${file.type};base64,${base64String}`;
       
-      setFormData(prev => ({
-        ...prev,
+      const updatePayload = {
         [fieldName]: base64String
-      }));
-      
-      setFileNames(prev => ({
-        ...prev,
-        [fieldName]: file.name
-      }));
+      };
 
-      const updateResult = await updateDatabase({ 
-        [fieldName]: base64String 
+      const token = localStorage.getItem("authToken");
+      const response = await fetch('http://localhost:3001/provider/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatePayload)
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update file');
+      }
+
+      const result = await response.json();
       
-      if (updateResult.success) {
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: fullImageString
+        }));
+        
+        setFileNames(prev => ({
+          ...prev,
+          [fieldName]: file.name
+        }));
+
         setOriginalData(prev => ({
           ...prev,
-          [fieldName]: base64String
+          [fieldName]: fullImageString
         }));
+
         setSuccessMessage('File uploaded successfully');
+      } else {
+        throw new Error(result.message || 'Update failed');
       }
     } catch (error) {
       console.error('File processing error:', error);
-      setError('Failed to process file. Please try again.');
+      setError(error.message || 'Failed to process file. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePhotoUpload = async (file) => {
-    if (!file) return;
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
     
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setError('File size must be less than 5MB');
+    if (!file) {
+      console.log('No file selected');
       return;
     }
-
+  
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File size should be less than 5MB");
+      return;
+    }
+  
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       setError('Please upload only JPG, PNG, or GIF files');
       return;
     }
-    
-    setError(null);
-    const formDataImage = new FormData();
-    formDataImage.append('file', file);
-    formDataImage.append('upload_preset', 'ml_default2');
-
+  
     try {
       setLoading(true);
+      setError(null);
+  
+      //  upload to Cloudinary
+      const formDataImage = new FormData();
+      formDataImage.append('file', file);
+      formDataImage.append('upload_preset', 'ml_default2');
+  
       const uploadRes = await fetch(
         'https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload',
         {
@@ -173,67 +207,65 @@ function Profile() {
           body: formDataImage
         }
       );
-
+  
       if (!uploadRes.ok) {
-        throw new Error('Image upload failed');
+        throw new Error('Failed to upload image to cloud storage');
       }
-
+  
       const imageData = await uploadRes.json();
       const imageUrl = imageData.secure_url;
-
-      setFormData(prev => ({
-        ...prev,
-        photoUrl: imageUrl
-      }));
-
-      const updateResult = await updateDatabase({ photoUrl: imageUrl });
+  
+      //  update the profile with the image URL
+      const token = localStorage.getItem("authToken");
+      const response = await fetch('http://localhost:3001/provider/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          photoUrl: imageUrl 
+        })
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Server error while updating profile');
+      }
+  
+      const result = await response.json();
       
-      if (updateResult.success) {
+      if (result.success) {
+        // Update local state with URL
+        setFormData(prev => ({
+          ...prev,
+          photoUrl: imageUrl
+        }));
+  
         setOriginalData(prev => ({
           ...prev,
           photoUrl: imageUrl
         }));
+  
         setSuccessMessage('Profile photo updated successfully');
+      } else {
+        throw new Error(result.message || 'Update failed');
       }
-
     } catch (error) {
-      console.error('Upload error:', error);
-      setError('Failed to upload image. Please try again.');
+      console.error('Photo upload error:', error);
+      setError(error.message || 'Failed to upload profile photo. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
-  const updateDatabase = async (updatedData) => {
-    try {
-      const response = await fetch('http://localhost:3001/provider/update/1', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(updatedData)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      throw error;
-    }
-  };
-
   const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+   
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
   };
 
   const validatePhoneNumber = (phone) => {
-    const re = /^\+?[\d\s-]{10,}$/;
+    const re = /^\+?[\d\s-]{8,}$/;
     return phone === '' || re.test(phone);
   };
 
@@ -245,18 +277,8 @@ function Profile() {
       return;
     }
 
-    if (!formData.email.trim()) {
-      setError('Email is required');
-      return;
-    }
-
-    if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    if (formData.phoneNumber && !validatePhoneNumber(formData.phoneNumber)) {
-      setError('Please enter a valid phone number');
+    if (!formData.email.trim() || !validateEmail(formData.email)) {
+      setError('Valid email is required');
       return;
     }
 
@@ -272,24 +294,48 @@ function Profile() {
     try {
       const changedFields = {};
       Object.keys(formData).forEach(key => {
-        if (formData[key] !== originalData[key] && (key !== 'password' || formData[key] !== '')) {
-          changedFields[key] = formData[key];
+        if (formData[key] !== originalData[key] && 
+            (key !== 'password' || formData[key] !== '')) {
+          if (typeof formData[key] === 'string' && formData[key].startsWith('data:image')) {
+            changedFields[key] = formData[key].substring(formData[key].indexOf(',') + 1);
+          } else {
+            changedFields[key] = formData[key];
+          }
         }
       });
 
-      const result = await updateDatabase(changedFields);
+      const token = localStorage.getItem("authToken");
+      const response = await fetch('http://localhost:3001/provider/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(changedFields)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const result = await response.json();
+      
       if (result.success) {
         setSuccessMessage('Profile updated successfully');
         setOriginalData(prev => ({
           ...prev,
           ...changedFields
         }));
+        
         if (formData.password) {
           setFormData(prev => ({
             ...prev,
             password: ''
           }));
         }
+
+        fetchProfileData();
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -412,14 +458,14 @@ function Profile() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                       <input
-                        id="photo-input"
-                        type="file"
-                        name="photoUrl"
-                        onChange={(e) => handlePhotoUpload(e.target.files[0])}
-                        disabled={loading}
-                        className="hidden"
-                        accept="image/*"
-                      />
+                       id="photo-input"
+                          type="file"
+                           name="photoUrl"
+                           onChange={handlePhotoUpload}
+                             disabled={loading}
+                             className="hidden"
+                               accept="image/jpeg,image/png,image/gif"
+                                      />
                     </label>
                   </div>
                 </div>
@@ -441,19 +487,31 @@ function Profile() {
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700">
-                  Email Address*
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email"
-                  required
-                  className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
-                />
-              </div>
+  <label className="block font-semibold text-gray-700">
+    Email Address*
+  </label>
+  <input
+    type="email"
+    name="email"
+    value={formData.email}
+    onChange={handleInputChange}
+    onBlur={(e) => {
+      if (!validateEmail(e.target.value)) {
+        setError('Please enter a valid email address');
+      } else {
+        setError(null);
+      }
+    }}
+    placeholder="Enter your email"
+    required
+    className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
+  />
+  {!validateEmail(formData.email) && formData.email && (
+    <p className="mt-1 text-sm text-red-500">
+      Please enter a valid email address
+    </p>
+  )}
+</div>
 
               <div>
                 <label className="block font-semibold text-gray-700">
@@ -483,7 +541,7 @@ function Profile() {
                 />
               </div>
 
-              <div className="md:col-span-2">
+              {/* <div className="md:col-span-2">
                 <label className="block font-semibold text-gray-700">
                   Password
                 </label>
@@ -495,7 +553,7 @@ function Profile() {
                   placeholder="Enter new password to change"
                   className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-8 flex flex-col items-center space-y-4">
