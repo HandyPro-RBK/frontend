@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Calendar, Clock } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "../utils/api";
 
 const validateDateTime = (date, time) => {
   const now = new Date();
@@ -41,37 +40,23 @@ const BookingForm = ({ serviceId, providerId, onClose }) => {
 
       const combinedDateTime = `${bookingDate}T${bookingTime}:00.000Z`;
 
-      const response = await fetch(`${API_URL}/my-services/bookings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          serviceId,
-          providerId,
-          bookingDate: combinedDateTime,
-          notes,
-        }),
+      // Use api.post instead of fetch
+      const response = await api.post("/my-services/bookings", {
+        serviceId,
+        providerId,
+        bookingDate: combinedDateTime,
+        notes,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.code === "TOKEN_EXPIRED") {
-          localStorage.removeItem("authToken");
-          navigate("/login");
-          return;
-        }
-        throw new Error(errorData.error || "Failed to create booking");
-      }
-
-      const data = await response.json();
-      alert(data.message);
+      localStorage.setItem(
+        "bookingSuccess",
+        "Your booking was successfully created!"
+      );
       onClose();
-      navigate("/categories");
+      navigate("/dashboard/bookings");
     } catch (error) {
       console.error("Error creating booking:", error);
-      setError(error.message);
+      setError(error.response?.data?.error || error.message);
     } finally {
       setIsSubmitting(false);
     }
