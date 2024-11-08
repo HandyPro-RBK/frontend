@@ -12,36 +12,7 @@ const BookingDetails = () => {
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
   const [submittingReview, setSubmittingReview] = useState(false);
-  const [confirmationModal, setConfirmationModal] = useState({
-    show: false,
-    action: null,
-    title: "",
-    message: "",
-  });
   const navigate = useNavigate();
-
-  const handleBookingSuccess = (message) => {
-    localStorage.setItem("bookingSuccess", message);
-    navigate("/dashboard/bookings");
-  };
-
-  const handleBookingAction = async (action) => {
-    try {
-      setLoading(true);
-      await api.post(`/dashboard/bookings/${bookingId}/${action}`);
-      handleBookingSuccess(`Booking has been ${action}ed successfully!`);
-    } catch (err) {
-      setError(err.response?.data?.error || `Failed to ${action} booking`);
-    } finally {
-      setLoading(false);
-      setConfirmationModal({
-        show: false,
-        action: null,
-        title: "",
-        message: "",
-      });
-    }
-  };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -106,33 +77,6 @@ const BookingDetails = () => {
             ★
           </button>
         ))}
-      </div>
-    );
-  };
-
-  const ConfirmationModal = ({ show, title, message, onConfirm, onCancel }) => {
-    if (!show) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-          <h3 className="text-xl font-bold mb-4">{title}</h3>
-          <p className="mb-6">{message}</p>
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onConfirm}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
       </div>
     );
   };
@@ -301,41 +245,6 @@ const BookingDetails = () => {
                 </div>
               </div>
 
-              {booking.status === "PENDING" && (
-                <div className="md:col-span-2">
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={() =>
-                        setConfirmationModal({
-                          show: true,
-                          action: "confirm",
-                          title: "Confirm Booking",
-                          message:
-                            "Are you sure you want to confirm this booking?",
-                        })
-                      }
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Confirm Booking
-                    </button>
-                    <button
-                      onClick={() =>
-                        setConfirmationModal({
-                          show: true,
-                          action: "cancel",
-                          title: "Cancel Booking",
-                          message:
-                            "Are you sure you want to cancel this booking?",
-                        })
-                      }
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                      Cancel Booking
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {booking.status === "COMPLETED" && !booking.review && (
                 <div className="md:col-span-2">
                   <h2 className="text-xl font-semibold mb-4">Leave a Review</h2>
@@ -378,21 +287,6 @@ const BookingDetails = () => {
               )}
             </div>
           </div>
-
-          <ConfirmationModal
-            show={confirmationModal.show}
-            title={confirmationModal.title}
-            message={confirmationModal.message}
-            onConfirm={() => handleBookingAction(confirmationModal.action)}
-            onCancel={() =>
-              setConfirmationModal({
-                show: false,
-                action: null,
-                title: "",
-                message: "",
-              })
-            }
-          />
         </div>
       </div>
     </div>
