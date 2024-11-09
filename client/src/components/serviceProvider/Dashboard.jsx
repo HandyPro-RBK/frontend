@@ -7,7 +7,7 @@ import FAQSection from "../Homepage/FAQSection";
 import Footer from "../Homepage/Footer";
 import AddServiceModal from "../../pages/AddService";
 
-const Dashboard = () => {
+const Dashboardp = () => {
   const [service, setService] = useState("");
   const [city, setCity] = useState("");
   const [isHovered, setIsHovered] = useState(false);
@@ -23,21 +23,24 @@ const Dashboard = () => {
     setLoading(true);
     setError(null);
     const token = localStorage.getItem("authToken");
-    
+
     try {
-      const providerId = localStorage.getItem("providerId"); 
-      const response = await fetch(`http://127.0.0.1:3001/service/provider/${providerId}`, {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const providerId = localStorage.getItem("providerId");
+      const response = await fetch(
+        `http://127.0.0.1:3001/service/provider/${providerId}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-  
+      );
+
       if (!response.ok) throw new Error("Failed to fetch services.");
       const data = await response.json();
       setServices(data);
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error("Error fetching services:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -50,7 +53,6 @@ const Dashboard = () => {
 
   const handleSearch = () => {
     console.log("Searching for:", service, "in", city);
-    
   };
 
   const handleNext = () => {
@@ -91,7 +93,8 @@ const Dashboard = () => {
               Explore Top-Rated Services Available in Your Local Area!
             </h2>
             <p className="text-xl lg:text-2xl mt-6 max-w-xl">
-              Easily find the best services near you, with trusted professionals at your fingertips.
+              Easily find the best services near you, with trusted professionals
+              at your fingertips.
             </p>
             <div className="flex justify-start mt-8">
               <div className="flex items-center space-x-4 bg-white p-2 rounded-lg border border-gray-300">
@@ -146,11 +149,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-
         {/* Services List Section */}
         <div className="my-20">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold text-[#FF9202]">List of Your Posts</h1>
+            <h1 className="text-3xl font-semibold text-[#FF9202]">
+              List of Your Posts
+            </h1>
           </div>
 
           {/* Loading and Error Handling */}
@@ -161,7 +165,9 @@ const Dashboard = () => {
           <div className="flex items-center justify-center relative">
             <button
               className={`absolute left-0 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-full transition-transform duration-300 ${
-                currentIndex === 0 ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                currentIndex === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:scale-110"
               }`}
               onClick={handlePrevious}
               disabled={currentIndex === 0}
@@ -171,33 +177,39 @@ const Dashboard = () => {
             </button>
 
             <div className="flex gap-6 mb-8">
-              {services.slice(currentIndex, currentIndex + itemsToShow).map((service, index) => (
-                <div
-                  key={service.id} 
-                  onClick={() => handleServiceClick(service.id)}
-                  className="w-72 bg-white p-4 rounded-lg shadow-lg text-left cursor-pointer"
-                >
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-full h-40 object-cover rounded mb-4"
-                  />
-                  <div className="mb-2 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-[#0A165E]">{service.name}</h2>
-                    <button className="text-orange-500 text-xl">♥</button>
+              {services
+                .slice(currentIndex, currentIndex + itemsToShow)
+                .map((service, index) => (
+                  <div
+                    key={service.id}
+                    onClick={() => handleServiceClick(service.id)}
+                    className="w-72 bg-white p-4 rounded-lg shadow-lg text-left cursor-pointer"
+                  >
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-40 object-cover rounded mb-4"
+                    />
+                    <div className="mb-2 flex justify-between items-center">
+                      <h2 className="text-lg font-semibold text-[#0A165E]">
+                        {service.name}
+                      </h2>
+                      <button className="text-orange-500 text-xl">♥</button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="bg-orange-200 text-orange-500 px-2 py-1 rounded text-xs font-semibold">
+                        See detail
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="bg-orange-200 text-orange-500 px-2 py-1 rounded text-xs font-semibold">
-                      See detail
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
 
             <button
               className={`absolute right-0 transform translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-full transition-transform duration-300 ${
-                currentIndex + itemsToShow >= services.length ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                currentIndex + itemsToShow >= services.length
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:scale-110"
               }`}
               onClick={handleNext}
               disabled={currentIndex + itemsToShow >= services.length}
@@ -223,7 +235,7 @@ const Dashboard = () => {
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            fetchServices(); 
+            fetchServices();
           }}
         />
       </div>
@@ -235,4 +247,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Dashboardp;
