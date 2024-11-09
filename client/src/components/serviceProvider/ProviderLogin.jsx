@@ -22,7 +22,7 @@ const LoginProvider = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/provider/login", {
+      const response = await fetch("http://localhost:3001/service-provider/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +32,7 @@ const LoginProvider = () => {
       const data = await response.json();
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register-provider");
+        navigate("/serviceProvider");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
@@ -45,7 +45,7 @@ const LoginProvider = () => {
     <div className="flex">
       {/* Home button */}
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/serviceProvider")}
         className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
         title="Go to Home"
       >

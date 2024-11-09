@@ -31,6 +31,7 @@ const Home = () => {
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "top center",
+          
         }}
       >
         <Navbar onCategorySelect={openModal} />
