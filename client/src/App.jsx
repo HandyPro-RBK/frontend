@@ -17,6 +17,8 @@ import History from "./components/serviceProvider/History";
 import ProviderProfile from "./components/serviceProvider/Profile";
 import ServiceDetail from "./components/serviceProvider/ServiceDetail";
 import PrivateRoute from "./components/common/PrivateRoute";
+import Dashboardp from "./components/serviceProvider/Dashboard";
+import Requests from "./components/serviceProvider/Requests";
 
 const App = () => {
   return (
@@ -24,6 +26,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<BrowseCategories />} />
+        <Route path="/ServiceProvider" element={<Dashboardp />} />
+        <Route path="/requests" element={<Requests />} />
         <Route
           path="/categories/:categoryName/:city"
           element={<WorkersNearYou />}
@@ -84,3 +88,4 @@ const App = () => {
 };
 
 export default App;
+//test
