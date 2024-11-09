@@ -1,138 +1,100 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
+import ServiceDetailsModal from "./ServiceDetailsModal";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const BrowseCategories = () => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("Plumbing");
+  const [categories, setCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Update active category when navigating from navbar
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [categoriesResponse, servicesResponse] = await Promise.all([
+          fetch(`${API_URL}/my-categories`),
+          fetch(`${API_URL}/my-services`),
+        ]);
+
+        if (!categoriesResponse.ok || !servicesResponse.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const categoriesData = await categoriesResponse.json();
+        const servicesData = await servicesResponse.json();
+
+        setCategories(categoriesData);
+        setServices(servicesData);
+
+        if (!activeCategory && categoriesData.length > 0) {
+          setActiveCategory(categoriesData[0].name);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to load content. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (location.state?.selectedCategory) {
       setActiveCategory(location.state.selectedCategory);
     }
   }, [location.state]);
 
-  const categoryPills = [
-    { id: 1, name: "Kitchen" },
-    { id: 2, name: "Plumbing" },
-    { id: 3, name: "Indoor" },
-    { id: 4, name: "Outdoor" },
-    { id: 5, name: "Renovation" },
-  ];
+  useEffect(() => {
+    const filtered = services.filter(
+      (service) => service.category.name === activeCategory
+    );
+    setFilteredServices(filtered);
+  }, [services, activeCategory]);
 
-  const categories = [
-    // Plumbing Services
-    {
-      title: "Pipe Installation",
-      category: "Plumbing",
-      image: "src/assets/images/Pipe installation.png",
-    },
-    {
-      title: "Leak Repair",
-      category: "Plumbing",
-      image: "src/assets/images/Leak Repair.png",
-    },
-    {
-      title: "Drainage Systems",
-      category: "Plumbing",
-      image: "src/assets/images/Drainage Systems.png",
-    },
-    {
-      title: "Maintenance Services",
-      category: "Plumbing",
-      image: "src/assets/images/maintenance services.png",
-    },
-    // Kitchen Services
-    {
-      title: "Kitchen Cabinets",
-      category: "Kitchen",
-      image: "src/assets/images/kitchen cabinets.jpg",
-    },
-    {
-      title: "Tile Installation",
-      category: "Kitchen",
-      image: "src/assets/images/Tile Installation.jpg",
-    },
-    {
-      title: "Countertop Installation",
-      category: "Kitchen",
-      image: "src/assets/images/Countertop Installation.jpg",
-    },
-    {
-      title: "Kitchen Remodeling",
-      category: "Kitchen",
-      image: "src/assets/images/Kitchen Remodeling.jpg",
-    },
-    // Indoor Services
-    {
-      title: "Interior Painting",
-      category: "Indoor",
-      image: "src/assets/images/Interior Painting.png",
-    },
-    {
-      title: "Drywall Installation",
-      category: "Indoor",
-      image: "src/assets/images/Drywall Installation.jpg",
-    },
-    {
-      title: "Flooring Installation",
-      category: "Indoor",
-      image: "src/assets/images/Flooring Installation.jpg",
-    },
-    {
-      title: "Indoor Landscaping",
-      category: "Indoor",
-      image: "src/assets/images/Indoor Landscaping.jpg",
-    },
-    // Outdoor Services
-    {
-      title: "Lawn Care",
-      category: "Outdoor",
-      image: "src/assets/images/Lawn Care.jpg",
-    },
-    {
-      title: "Deck Building",
-      category: "Outdoor",
-      image: "src/assets/images/Deck Building.jpg",
-    },
-    {
-      title: "Patio Installation",
-      category: "Outdoor",
-      image: "src/assets/images/Patio Installation.jpg",
-    },
-    {
-      title: "Garden Design",
-      category: "Outdoor",
-      image: "src/assets/images/Garden Design.png",
-    },
-    // Renovation Services
-    {
-      title: "Home Renovation",
-      category: "Renovation",
-      image: "src/assets/images/Home Renovation.jpg",
-    },
-    {
-      title: "Basement Finishing",
-      category: "Renovation",
-      image: "src/assets/images/Basement Finishing.jpg",
-    },
-    {
-      title: "Bathroom Remodeling",
-      category: "Renovation",
-      image: "src/assets/images/Bathroom Remodeling.jpg",
-    },
-    {
-      title: "Roofing Services",
-      category: "Renovation",
-      image: "src/assets/images/Roofing Services.jpg",
-    },
-  ];
+  const handleServiceClick = async (serviceId) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${API_URL}/my-services/${serviceId}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
 
-  // Filter categories based on the active category pill
-  const filteredCategories = categories.filter(
-    (category) => category.category === activeCategory
-  );
+      if (!response.ok) {
+        throw new Error("Failed to fetch service details");
+      }
+
+      const serviceDetails = await response.json();
+      setSelectedService(serviceDetails);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching service details:", error);
+      setError("Failed to load service details");
+    }
+  };
+
+  if (error) {
+    return <div className="text-center text-red-600 p-4">{error}</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900 mx-auto"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-16 px-12 bg-white">
@@ -144,9 +106,8 @@ const BrowseCategories = () => {
           Explore our diverse range of services tailored to your needs.
         </p>
 
-        {/* Category Pills */}
         <div className="flex flex-wrap gap-4 justify-center mb-12">
-          {categoryPills.map((category) => (
+          {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.name)}
@@ -161,17 +122,28 @@ const BrowseCategories = () => {
           ))}
         </div>
 
-        {/* Service Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredCategories.map((category) => (
+          {filteredServices.map((service) => (
             <CategoryCard
-              key={category.title}
-              title={category.title}
-              image={category.image}
+              key={service.id}
+              title={service.name}
+              image={service.image}
+              onClick={() => handleServiceClick(service.id)}
             />
           ))}
         </div>
       </div>
+
+      {selectedService && (
+        <ServiceDetailsModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedService(null);
+          }}
+          service={selectedService}
+        />
+      )}
     </div>
   );
 };
