@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
 
@@ -8,16 +8,60 @@ const RegisterProvider = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    address: "",
+    city: "",
     phoneNumber: "",
     certification: "",
     identityCard: "",
-    age: "",
+    birthDate: "",
   });
+
   const [error, setError] = useState("");
-  const [fileName, setFileName] = useState("No file chosen");
+  const [fileName, setFileName] = useState({
+    certification: "No file chosen",
+    identityCard: "No file chosen",
+  });
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cities] = useState([
+    { code: "TUN", name: "TUNIS", flag: "🇹🇳" },
+    { code: "SFX", name: "SFAX", flag: "🇹🇳" },
+    { code: "SUS", name: "SOUSSE", flag: "🇹🇳" },
+    { code: "KRN", name: "KAIROUAN", flag: "🇹🇳" },
+    { code: "BZT", name: "BIZERTE", flag: "🇹🇳" },
+    { code: "GBS", name: "GABES", flag: "🇹🇳" },
+    { code: "ARN", name: "ARIANA", flag: "🇹🇳" },
+    { code: "GFS", name: "GAFSA", flag: "🇹🇳" },
+    { code: "MNS", name: "MONASTIR", flag: "🇹🇳" },
+    { code: "BNA", name: "BEN AROUS", flag: "🇹🇳" },
+    { code: "KSR", name: "KASSERINE", flag: "🇹🇳" },
+    { code: "MDN", name: "MEDENINE", flag: "🇹🇳" },
+    { code: "NBL", name: "NABEUL", flag: "🇹🇳" },
+    { code: "TTN", name: "TATAOUINE", flag: "🇹🇳" },
+    { code: "BJA", name: "BEJA", flag: "🇹🇳" },
+    { code: "JND", name: "JENDOUBA", flag: "🇹🇳" },
+    { code: "MHD", name: "MAHDIA", flag: "🇹🇳" },
+    { code: "SLN", name: "SILIANA", flag: "🇹🇳" },
+    { code: "KEF", name: "KEF", flag: "🇹🇳" },
+    { code: "TZR", name: "TOZEUR", flag: "🇹🇳" },
+    { code: "MNB", name: "MANOUBA", flag: "🇹🇳" },
+    { code: "ZGN", name: "ZAGHOUAN", flag: "🇹🇳" },
+    { code: "KBL", name: "KEBILI", flag: "🇹🇳" },
+  ]);
+
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCityDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -26,8 +70,22 @@ const RegisterProvider = () => {
     });
   };
 
+  const handleCitySelect = (city) => {
+    setFormData({
+      ...formData,
+      city: city.name,
+    });
+    setIsCityDropdownOpen(false);
+  };
+
+  const filteredCities = cities.filter((city) =>
+    city.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    const fieldName = e.target.name;
+
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         setError("File size should be less than 5MB");
@@ -38,9 +96,12 @@ const RegisterProvider = () => {
         const base64String = await convertFileToBase64(file);
         setFormData({
           ...formData,
-          [e.target.name]: base64String,
+          [fieldName]: base64String,
         });
-        setFileName(file.name);
+        setFileName({
+          ...fileName,
+          [fieldName]: file.name,
+        });
       } catch (error) {
         setError("Error processing file");
         console.error("File conversion error:", error);
@@ -98,7 +159,6 @@ const RegisterProvider = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Home button */}
       <button
         onClick={() => navigate("/")}
         className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
@@ -118,6 +178,7 @@ const RegisterProvider = () => {
           />
         </svg>
       </button>
+
       <div className="flex flex-1">
         <div className="w-1/2 bg-[#1034A6] flex items-center justify-center">
           <div className="text-white text-4xl font-bold">
@@ -162,6 +223,7 @@ const RegisterProvider = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Username input */}
               <div className="relative">
                 <input
                   type="text"
@@ -189,6 +251,7 @@ const RegisterProvider = () => {
                 </span>
               </div>
 
+              {/* Email input */}
               <div className="relative">
                 <input
                   type="email"
@@ -216,6 +279,7 @@ const RegisterProvider = () => {
                 </span>
               </div>
 
+              {/* Password input */}
               <div className="relative">
                 <input
                   type="password"
@@ -243,6 +307,7 @@ const RegisterProvider = () => {
                 </span>
               </div>
 
+              {/* Confirm Password input */}
               <div className="relative">
                 <input
                   type="password"
@@ -270,16 +335,18 @@ const RegisterProvider = () => {
                 </span>
               </div>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  name="address"
-                  placeholder="Address"
-                  onChange={handleChange}
-                  value={formData.address}
-                  required
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                />
+              {/* City Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <div
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg cursor-pointer flex items-center"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                >
+                  {formData.city ? (
+                    <span>{formData.city}</span>
+                  ) : (
+                    <span className="text-gray-400">Select City</span>
+                  )}
+                </div>
                 <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
                   <svg
                     className="w-5 h-5 text-gray-400"
@@ -293,16 +360,37 @@ const RegisterProvider = () => {
                       strokeWidth="2"
                       d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                     />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
                   </svg>
                 </span>
+
+                {isCityDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <div className="p-2">
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        placeholder="Search a city"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {filteredCities.map((city) => (
+                        <div
+                          key={city.code}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                          onClick={() => handleCitySelect(city)}
+                        >
+                          <span className="mr-2">{city.flag}</span>
+                          <span>{city.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
+              {/* Phone Number input */}
               <div className="relative">
                 <input
                   type="tel"
@@ -330,13 +418,14 @@ const RegisterProvider = () => {
                 </span>
               </div>
 
+              {/* Birth Date input */}
               <div className="relative">
                 <input
-                  type="text"
-                  name="age"
-                  placeholder="Age"
+                  type="date"
+                  name="birthDate"
                   onChange={handleChange}
-                  value={formData.age}
+                  value={formData.birthDate}
+                  required
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                 />
                 <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
@@ -350,19 +439,26 @@ const RegisterProvider = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
                 </span>
               </div>
 
-              <div className="relative">
-                <div className="w-full">
+              {/* File Upload sections */}
+              <div className="space-y-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Upload Certification
                   </label>
                   <div className="mt-1 flex items-center">
                     <label className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="file"
+                        name="certification"
+                        onChange={handleFileChange}
+                        className="sr-only"
+                      />
                       <svg
                         className="w-5 h-5 mr-2 text-gray-400"
                         fill="none"
@@ -376,32 +472,23 @@ const RegisterProvider = () => {
                           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                         />
                       </svg>
-                      Choose File
-                      <input
-                        type="file"
-                        name="certification"
-                        onChange={handleFileChange}
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                        className="sr-only"
-                      />
+                      {fileName.certification}
                     </label>
                   </div>
-                  <p className="mt-2 text-sm text-gray-500 truncate">
-                    {fileName}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Accepted formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max 5MB)
-                  </p>
                 </div>
-              </div>
 
-              <div className="relative">
-                <div className="w-full">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Upload Identity Card
                   </label>
                   <div className="mt-1 flex items-center">
                     <label className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="file"
+                        name="identityCard"
+                        onChange={handleFileChange}
+                        className="sr-only"
+                      />
                       <svg
                         className="w-5 h-5 mr-2 text-gray-400"
                         fill="none"
@@ -415,33 +502,19 @@ const RegisterProvider = () => {
                           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                         />
                       </svg>
-                      Choose File
-                      <input
-                        type="file"
-                        name="identityCard"
-                        onChange={handleFileChange}
-                        accept=".jpg,.jpeg,.png"
-                        className="sr-only"
-                      />
+                      {fileName.identityCard}
                     </label>
                   </div>
-                  <p className="mt-2 text-sm text-gray-500 truncate">
-                    {fileName}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Accepted formats: JPG, JPEG, PNG (Max 5MB)
-                  </p>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-[#FF8A00] text-white py-3 rounded-lg hover:bg-[#FF7A00] transition duration-200"
+                className="w-full bg-[#FF8A00] text-white py-3 rounded-lg hover:bg-[#FF8A00]/90 transition-colors duration-200"
               >
-                Register as Service Provider
+                Sign Up
               </button>
             </form>
-
             <div className="text-center mt-6">
               <span className="text-gray-600">
                 Already have an account?{" "}
