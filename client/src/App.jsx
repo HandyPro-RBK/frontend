@@ -31,10 +31,7 @@ const App = () => {
         <Route path="/requests" element={<Requests />} />
         <Route path="/ServiceProvider" element={<Dashboardp />} />
         <Route path="/requests" element={<Requests />} />
-        <Route
-          path="/categories/:categoryName/:city"
-          element={<WorkersNearYou />}
-        />
+       
 
         <Route path="/login-user" element={<LoginUser />} />
         <Route path="/login-provider" element={<LoginProvider />} />
