@@ -18,6 +18,7 @@ const LoginUser = () => {
       [e.target.name]: e.target.value,
     });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,22 +30,15 @@ const LoginUser = () => {
         body: JSON.stringify(formData),
       });
 
-      const responseText = await response.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        data = { message: responseText };
-      }
+      const data = await response.json();
 
       if (response.status === 403) {
         setErrorMessage("Your account has been banned");
       } else if (!response.ok) {
-        setErrorMessage(data.message || responseText);
+        setErrorMessage(
+          data.message || "An error occurred while trying to log in"
+        );
       } else if (data.token) {
-      const data = await response.json();
-      
-      if (data.token) {
         // Store all necessary data for chat and auth
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.user.id.toString());
@@ -61,7 +55,7 @@ const LoginUser = () => {
       setErrorMessage("An error occurred while trying to log in");
     }
   };
-  //test
+
   return (
     <div className="flex">
       {/* Home button */}
@@ -207,5 +201,4 @@ const LoginUser = () => {
     </div>
   );
 };
-
 export default LoginUser;
