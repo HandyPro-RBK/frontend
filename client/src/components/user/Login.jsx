@@ -18,7 +18,6 @@ const LoginUser = () => {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,6 +28,20 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { message: responseText };
+      }
+
+      if (response.status === 403) {
+        setErrorMessage("Your account has been banned");
+      } else if (!response.ok) {
+        setErrorMessage(data.message || responseText);
+      } else if (data.token) {
       const data = await response.json();
       
       if (data.token) {
@@ -42,14 +55,13 @@ const LoginUser = () => {
           localStorage.setItem("photoUrl", data.user.photoUrl);
         }
         navigate("/");
-      } else {
-        setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage("An error occurred while trying to log in");
     }
   };
-
+  //test
   return (
     <div className="flex">
       {/* Home button */}
