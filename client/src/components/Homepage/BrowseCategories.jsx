@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
 import ServiceDetailsModal from "./ServiceDetailsModal";
+import api from "../utils/api";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const BrowseCategories = () => {
+const BrowseCategories = ({ searchParams }) => {
   const location = useLocation();
   const [activeCategory, setActiveCategory] = useState("Plumbing");
   const [categories, setCategories] = useState([]);
-  const [services, setServices] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,20 +18,8 @@ const BrowseCategories = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [categoriesResponse, servicesResponse] = await Promise.all([
-          fetch(`${API_URL}/my-categories`),
-          fetch(`${API_URL}/my-services`),
-        ]);
-
-        if (!categoriesResponse.ok || !servicesResponse.ok) {
-          throw new Error("Failed to fetch data");
-        }
-
-        const categoriesData = await categoriesResponse.json();
-        const servicesData = await servicesResponse.json();
-
+        const { data: categoriesData } = await api.get("/my-categories");
         setCategories(categoriesData);
-        setServices(servicesData);
 
         if (!activeCategory && categoriesData.length > 0) {
           setActiveCategory(categoriesData[0].name);
@@ -56,26 +42,38 @@ const BrowseCategories = () => {
   }, [location.state]);
 
   useEffect(() => {
-    const filtered = services.filter(
-      (service) => service.category.name === activeCategory
-    );
-    setFilteredServices(filtered);
-  }, [services, activeCategory]);
+    if (categories.length > 0) {
+      const activeCategories = categories.find(
+        (cat) => cat.name === activeCategory
+      );
+      let services = activeCategories ? activeCategories.services : [];
+
+      // Filter services based on search parameters
+      if (searchParams.service || searchParams.city) {
+        services = services.filter((service) => {
+          const matchService = searchParams.service
+            ? service.name
+                .toLowerCase()
+                .includes(searchParams.service.toLowerCase())
+            : true;
+          const matchCity = searchParams.city
+            ? service.provider.city
+                .toLowerCase()
+                .includes(searchParams.city.toLowerCase())
+            : true;
+          return matchService && matchCity;
+        });
+      }
+
+      setFilteredServices(services);
+    }
+  }, [categories, activeCategory, searchParams]);
 
   const handleServiceClick = async (serviceId) => {
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${API_URL}/my-services/${serviceId}`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch service details");
-      }
-
-      const serviceDetails = await response.json();
+      const { data: serviceDetails } = await api.get(
+        `/my-services/${serviceId}`
+      );
       setSelectedService(serviceDetails);
       setIsModalOpen(true);
     } catch (error) {
@@ -128,6 +126,8 @@ const BrowseCategories = () => {
               key={service.id}
               title={service.name}
               image={service.image}
+              rating={service.provider.rating}
+              providerName={service.provider.username}
               onClick={() => handleServiceClick(service.id)}
             />
           ))}
