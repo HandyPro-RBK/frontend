@@ -29,9 +29,16 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      
-      if (data.token) {
+
+      if (response.status === 403) {
+        setErrorMessage("Your account has been banned");
+      } else if (!response.ok) {
+        setErrorMessage(
+          data.message || "An error occurred while trying to log in"
+        );
+      } else if (data.token) {
         // Store all necessary data for chat and auth
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.user.id.toString());
@@ -42,11 +49,10 @@ const LoginUser = () => {
           localStorage.setItem("photoUrl", data.user.photoUrl);
         }
         navigate("/");
-      } else {
-        setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage("An error occurred while trying to log in");
     }
   };
 
@@ -195,5 +201,4 @@ const LoginUser = () => {
     </div>
   );
 };
-
 export default LoginUser;
