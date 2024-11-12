@@ -22,22 +22,30 @@ const LoginProvider = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/provider/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://localhost:3001/service-provider/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data);
+      }
+
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register-provider");
+        navigate("/serviceProvider");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      setErrorMessage(error.message || "Email or password not correct");
     }
   };
 
@@ -45,7 +53,7 @@ const LoginProvider = () => {
     <div className="flex">
       {/* Home button */}
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/serviceProvider")}
         className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
         title="Go to Home"
       >

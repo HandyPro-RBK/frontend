@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
 
-const Login = () => {
+const LoginUser = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,7 +18,6 @@ const Login = () => {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,12 +28,16 @@ const Login = () => {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      if (data.token) {
+
+      if (response.status === 403) {
+        setErrorMessage("Your account has been banned");
+      } else if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/register-user");
+        navigate("/");
       } else {
-        setErrorMessage(data.message || "Login failed");
+        setErrorMessage(data.message || "Invalid email or password");
       }
     } catch (error) {
       setErrorMessage("Email or password not correct");
@@ -186,4 +189,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginUser;
