@@ -6,7 +6,6 @@ import ClientTestimonials from "../components/Homepage/ClientTestimonials";
 import ExploreOurServiceCategories from "../components/Homepage/ExploreOurServiceCategories";
 import FAQSection from "../components/Homepage/FAQSection";
 import Footer from "../components/Homepage/Footer";
-import CitySelectionModal from "./CitySelectionModal";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Home = () => {
@@ -127,7 +126,6 @@ const Home = () => {
       <ExploreOurServiceCategories />
       <FAQSection />
       <Footer />
-      <CitySelectionModal isOpen={isModalOpen} onClose={closeModal} />
     </>
   );
 };
