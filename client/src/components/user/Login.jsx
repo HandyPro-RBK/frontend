@@ -17,7 +17,10 @@ const LoginUser = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error message when user starts typing
+    setErrorMessage("");
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -28,29 +31,34 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+      const data = await response.json();
 
-      const responseText = await response.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        data = { message: responseText };
-      }
-
-      if (response.status === 403) {
-        setErrorMessage("Your account has been banned");
-      } else if (!response.ok) {
-        setErrorMessage(data.message || responseText);
-      } else if (data.token) {
+      if (data.status === "success" && data.token) {
         localStorage.setItem("authToken", data.token);
         navigate("/");
+      } else {
+        // Handle different error cases based on the error code
+        switch (data.code) {
+          case "ACCOUNT_BANNED":
+            setErrorMessage(
+              "Your account has been banned. Please contact support for assistance."
+            );
+            break;
+          case "INVALID_CREDENTIALS":
+            setErrorMessage("Email or password is incorrect");
+            break;
+          case "VALIDATION_ERROR":
+            setErrorMessage(data.message);
+            break;
+          default:
+            setErrorMessage("Login failed. Please try again.");
+        }
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("An error occurred while trying to log in");
+      setErrorMessage("An error occurred. Please try again later.");
     }
   };
-  //test
+
   return (
     <div className="flex">
       {/* Home button */}
