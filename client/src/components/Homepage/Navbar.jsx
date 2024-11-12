@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
+import api from "../utils/api";
 import { io } from "socket.io-client";
 import axios from 'axios';
 
@@ -8,6 +9,9 @@ const Navbar = ({ onCategorySelect }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
@@ -19,7 +23,22 @@ const Navbar = ({ onCategorySelect }) => {
       fetchUnreadMessages();
       initializeSocket();
     }
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/my-categories");
+      setCategories(response.data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setError("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchUnreadMessages = async () => {
     try {
@@ -136,16 +155,26 @@ const Navbar = ({ onCategorySelect }) => {
           {dropdownOpen && (
             <div className="absolute top-full mt-2 w-40 bg-white text-black border border-gray-200 shadow-lg rounded-md z-50">
               <ul className="flex flex-col">
-                {["Outdoor", "Indoor", "Plumbing", "Kitchen", "Renovation"].map(
-                  (category) => (
+                {loading ? (
+                  <li className="p-2 text-center text-gray-500">Loading...</li>
+                ) : error ? (
+                  <li className="p-2 text-center text-red-500">{error}</li>
+                ) : categories.length === 0 ? (
+                  <li className="p-2 text-center text-gray-500">
+                    No categories available
+                  </li>
+                ) : (
+                  categories.map((category) => (
                     <li
-                      key={category}
+                      key={category.id}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                       onClick={() => handleCategoryClick(category)}
                     >
-                      <span>{category}</span>
+                      <span onClick={() => handleCategoryClick(category)}>
+                        {category.name}
+                      </span>
                     </li>
-                  )
+                  ))
                 )}
               </ul>
             </div>
