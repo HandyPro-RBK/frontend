@@ -29,21 +29,28 @@ const LoginUser = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { message: responseText };
+      }
 
       if (response.status === 403) {
         setErrorMessage("Your account has been banned");
-      } else if (response.ok && data.token) {
+      } else if (!response.ok) {
+        setErrorMessage(data.message || responseText);
+      } else if (data.token) {
         localStorage.setItem("authToken", data.token);
         navigate("/");
-      } else {
-        setErrorMessage(data.message || "Invalid email or password");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage("An error occurred while trying to log in");
     }
   };
-
+  //test
   return (
     <div className="flex">
       {/* Home button */}
