@@ -18,7 +18,6 @@ const LoginUser = () => {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,27 +28,29 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
-      const data = await response.json();
-      
-      if (data.token) {
-        // Store all necessary data for chat and auth
+
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { message: responseText };
+      }
+
+      if (response.status === 403) {
+        setErrorMessage("Your account has been banned");
+      } else if (!response.ok) {
+        setErrorMessage(data.message || responseText);
+      } else if (data.token) {
         localStorage.setItem("authToken", data.token);
-        localStorage.setItem("userId", data.user.id.toString());
-        localStorage.setItem("userType", "CUSTOMER");
-        localStorage.setItem("role", "user");
-        localStorage.setItem("username", data.user.username);
-        if (data.user.photoUrl) {
-          localStorage.setItem("photoUrl", data.user.photoUrl);
-        }
         navigate("/");
-      } else {
-        setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage("An error occurred while trying to log in");
     }
   };
-
+  //test
   return (
     <div className="flex">
       {/* Home button */}
@@ -72,7 +73,6 @@ const LoginUser = () => {
           />
         </svg>
       </button>
-
       {/* Left side with logo */}
       <div className="w-1/2 bg-[#1034A6] h-screen flex items-center justify-center">
         <div className="text-white text-4xl font-bold">
