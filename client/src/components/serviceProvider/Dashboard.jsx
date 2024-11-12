@@ -8,7 +8,6 @@ import Footer from "../Homepage/Footer";
 import AddServiceModal from "../../pages/AddService";
 
 const Dashboardp = () => {
-const Dashboardp = () => {
   const [service, setService] = useState("");
   const [city, setCity] = useState("");
   const [isHovered, setIsHovered] = useState(false);
@@ -41,7 +40,7 @@ const Dashboardp = () => {
     setLoading(true);
     setError(null);
     const token = localStorage.getItem("authToken");
-
+    
     try {
       const providerId = localStorage.getItem("providerId");
       const response = await fetch(`http://127.0.0.1:3001/service/provider/${providerId}`, {
@@ -49,13 +48,13 @@ const Dashboardp = () => {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
         }
-      );
-
+      });
+  
       if (!response.ok) throw new Error("Failed to fetch services.");
       const data = await response.json();
       setServices(data);
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error('Error fetching services:', error);
       setError(error.message);
     } finally {
       setLoading(false);
