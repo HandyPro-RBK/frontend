@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import api from "../utils/api";
+import { io } from "socket.io-client";
+import axios from 'axios';
 
 const Navbar = ({ onCategorySelect }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -10,11 +12,17 @@ const Navbar = ({ onCategorySelect }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
     setIsAuthenticated(!!authToken);
+
+    if (authToken) {
+      fetchUnreadMessages();
+      initializeSocket();
+    }
     fetchCategories();
   }, []);
 
@@ -32,13 +40,65 @@ const Navbar = ({ onCategorySelect }) => {
     }
   };
 
+  const fetchUnreadMessages = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      const response = await axios.get(
+        `http://localhost:3001/api/conversations/unread/${userId}?role=user`
+      );
+      
+      if (response.data) {
+        setUnreadCount(response.data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching unread messages:', error);
+    }
+  };
+
+  const initializeSocket = () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    const socket = io('http://localhost:3001');
+
+    socket.on('connect', () => {
+      console.log('Connected to socket for notifications');
+    });
+
+    socket.on('newMessage', (message) => {
+      if (message.sender === 'provider') {
+        setUnreadCount(prev => prev + 1);
+      }
+    });
+
+    socket.on('messagesRead', () => {
+      fetchUnreadMessages();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  };
+
   const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev);
+    setDropdownOpen(!dropdownOpen);
+    // Si le menu profil est ouvert, le fermer
+    if (profileDropdownOpen) setProfileDropdownOpen(false);
+  };
+
+  const toggleProfileDropdown = () => {
+    setProfileDropdownOpen(!profileDropdownOpen);
+    // Si le menu catégorie est ouvert, le fermer
+    if (dropdownOpen) setDropdownOpen(false);
   };
 
   const handleCategoryClick = (category) => {
+    if (onCategorySelect) {
+      onCategorySelect(category);
+    }
     setDropdownOpen(false);
-    onCategorySelect(category);
   };
 
   const handleSignIn = () => {
@@ -47,19 +107,32 @@ const Navbar = ({ onCategorySelect }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
     setIsAuthenticated(false);
     navigate("/");
   };
 
-  const toggleProfileDropdown = () => {
-    setProfileDropdownOpen((prev) => !prev);
-  };
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen || profileDropdownOpen) {
+        if (!event.target.closest('.dropdown-container')) {
+          setDropdownOpen(false);
+          setProfileDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen, profileDropdownOpen]);
 
   return (
-    <nav
-      className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4"
-      style={{ marginTop: "20px" }}
-    >
+    <nav className="flex items-center justify-between p-4 bg-white text-blue-900 shadow-md border border-gray-200 rounded-md mx-4" style={{ marginTop: "20px" }}>
       <div className="text-xl font-bold flex items-center">
         <img
           src="src/assets/images/logo.png"
@@ -72,8 +145,11 @@ const Navbar = ({ onCategorySelect }) => {
           <Link to="/">Home</Link>
         </li>
         <li className="cursor-default">Find A Professional</li>
-        <li className="relative">
-          <span className="cursor-pointer" onClick={toggleDropdown}>
+        <li className="relative dropdown-container">
+          <span 
+            className="cursor-pointer"
+            onClick={toggleDropdown}
+          >
             All Category
           </span>
           {dropdownOpen && (
@@ -92,6 +168,7 @@ const Navbar = ({ onCategorySelect }) => {
                     <li
                       key={category.id}
                       className="p-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleCategoryClick(category)}
                     >
                       <span onClick={() => handleCategoryClick(category)}>
                         {category.name}
@@ -106,6 +183,22 @@ const Navbar = ({ onCategorySelect }) => {
         <li>
           <Link to="/contact">Contact</Link>
         </li>
+        {/* Messages button - Only shown when authenticated */}
+        {isAuthenticated && (
+          <li>
+            <Link 
+              to="/messenger" 
+              className="relative flex items-center"
+            >
+              Messages
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#FF8A00] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          </li>
+        )}
       </ul>
       <div className="flex items-center space-x-4">
         {!isAuthenticated ? (
@@ -116,8 +209,11 @@ const Navbar = ({ onCategorySelect }) => {
             Sign In
           </button>
         ) : (
-          <div className="relative">
-            <div className="cursor-pointer" onClick={toggleProfileDropdown}>
+          <div className="relative dropdown-container">
+            <div 
+              className="cursor-pointer"
+              onClick={toggleProfileDropdown}
+            >
               <FaUserCircle className="text-blue-900 text-3xl hover:text-blue-700" />
               {profileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
