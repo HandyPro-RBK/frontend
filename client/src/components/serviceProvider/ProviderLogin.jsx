@@ -22,14 +22,22 @@ const LoginProvider = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/service-provider/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://localhost:3001/service-provider/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data);
+      }
+
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         navigate("/serviceProvider");
@@ -37,7 +45,7 @@ const LoginProvider = () => {
         setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      setErrorMessage(error.message || "Email or password not correct");
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Homepage/Navbar";
 import BrowseCategories from "../components/Homepage/BrowseCategories";
 import RecommendedProjects from "../components/Homepage/RecommendedProjects";
@@ -14,9 +14,34 @@ const Home = () => {
   const [city, setCity] = useState("");
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useState({ service: "", city: "" });
 
-  const handleSearch = () => {
-    console.log("Searching for:", service, "in", city);
+  // Debounce function to delay the search
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+  // Update search parameters with debounce
+  const updateSearch = debounce((newService, newCity) => {
+    setSearchParams({ service: newService, city: newCity });
+  }, 500); // 500ms delay
+
+  // Handle service input change
+  const handleServiceChange = (e) => {
+    const newService = e.target.value;
+    setService(newService);
+    updateSearch(newService, city);
+  };
+
+  // Handle city input change
+  const handleCityChange = (e) => {
+    const newCity = e.target.value;
+    setCity(newCity);
+    updateSearch(service, newCity);
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -31,7 +56,6 @@ const Home = () => {
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "top center",
-          
         }}
       >
         <Navbar onCategorySelect={openModal} />
@@ -53,26 +77,20 @@ const Home = () => {
                 <input
                   type="text"
                   placeholder="What service are you looking for?"
-                  className="p-1 border border-gray-300 rounded-md outline-none text-black text-base"
+                  className="w-[250px] p-1 border border-gray-300 rounded-md outline-none text-black text-base"
                   value={service}
-                  onChange={(e) => setService(e.target.value)}
+                  onChange={handleServiceChange}
                 />
                 <div className="relative">
                   <i className="fas fa-map-marker-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
                   <input
                     type="text"
                     placeholder="City"
-                    className="p-1 pl-10 border border-gray-300 rounded-md outline-none text-black text-base"
+                    className="w-[200px] p-1 pl-10 border border-gray-300 rounded-md outline-none text-black text-base"
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    onChange={handleCityChange}
                   />
                 </div>
-                <button
-                  className="bg-orange-500 text-white px-4 py-1 text-base font-semibold rounded-md hover:bg-orange-600"
-                  onClick={handleSearch}
-                >
-                  Search
-                </button>
               </div>
             </div>
           </div>
@@ -102,7 +120,7 @@ const Home = () => {
           </div>
         </div>
 
-        <BrowseCategories />
+        <BrowseCategories searchParams={searchParams} />
         <RecommendedProjects />
         <ClientTestimonials />
       </div>

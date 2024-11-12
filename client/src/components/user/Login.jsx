@@ -18,7 +18,6 @@ const LoginUser = () => {
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,12 +28,16 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      if (data.token) {
+
+      if (response.status === 403) {
+        setErrorMessage("Your account has been banned");
+      } else if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
         navigate("/");
       } else {
-        setErrorMessage(data.message || "Login failed");
+        setErrorMessage(data.message || "Invalid email or password");
       }
     } catch (error) {
       setErrorMessage("Email or password not correct");
