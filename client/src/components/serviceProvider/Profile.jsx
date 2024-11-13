@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// Profile.jsx
+import React, { useState, useEffect, useRef } from 'react';
 import ProviderNavBar from '../serviceProvider/ProviderNavBar';
 import Footer from '../Homepage/Footer';
 
@@ -7,7 +8,7 @@ function Profile() {
     username: '',
     email: '',
     phoneNumber: '',
-    address: '',
+    city: '',
     photoUrl: '',
     certification: '',
     identityCard: '',
@@ -22,9 +23,47 @@ function Profile() {
     certification: '',
     identityCard: ''
   });
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const dropdownRef = useRef(null);
+  
+  const [cities] = useState([
+    { code: "TUN", name: "TUNIS", flag: "🇹🇳" },
+    { code: "SFX", name: "SFAX", flag: "🇹🇳" },
+    { code: "SUS", name: "SOUSSE", flag: "🇹🇳" },
+    { code: "KRN", name: "KAIROUAN", flag: "🇹🇳" },
+    { code: "BZT", name: "BIZERTE", flag: "🇹🇳" },
+    { code: "GBS", name: "GABES", flag: "🇹🇳" },
+    { code: "ARN", name: "ARIANA", flag: "🇹🇳" },
+    { code: "GFS", name: "GAFSA", flag: "🇹🇳" },
+    { code: "MNS", name: "MONASTIR", flag: "🇹🇳" },
+    { code: "BNA", name: "BEN AROUS", flag: "🇹🇳" },
+    { code: "KSR", name: "KASSERINE", flag: "🇹🇳" },
+    { code: "MDN", name: "MEDENINE", flag: "🇹🇳" },
+    { code: "NBL", name: "NABEUL", flag: "🇹🇳" },
+    { code: "TTN", name: "TATAOUINE", flag: "🇹🇳" },
+    { code: "BJA", name: "BEJA", flag: "🇹🇳" },
+    { code: "JND", name: "JENDOUBA", flag: "🇹🇳" },
+    { code: "MHD", name: "MAHDIA", flag: "🇹🇳" },
+    { code: "SLN", name: "SILIANA", flag: "🇹🇳" },
+    { code: "KEF", name: "KEF", flag: "🇹🇳" },
+    { code: "TZR", name: "TOZEUR", flag: "🇹🇳" },
+    { code: "MNB", name: "MANOUBA", flag: "🇹🇳" },
+    { code: "ZGN", name: "ZAGHOUAN", flag: "🇹🇳" },
+    { code: "KBL", name: "KEBILI", flag: "🇹🇳" }
+  ]);
 
   useEffect(() => {
     fetchProfileData();
+
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCityDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchProfileData = async () => {
@@ -50,7 +89,7 @@ function Profile() {
         username: data.username || '',
         email: data.email || '',
         phoneNumber: data.phoneNumber || '',
-        address: data.address || '',
+        city: data.city || '',
         photoUrl: data.photoUrl || '',
         certification: data.certification || '',
         identityCard: data.identityCard || '',
@@ -66,6 +105,18 @@ function Profile() {
       setLoading(false);
     }
   };
+
+  const handleCitySelect = (city) => {
+    setFormData({
+      ...formData,
+      city: city.name,
+    });
+    setIsCityDropdownOpen(false);
+  };
+
+  const filteredCities = cities.filter((city) =>
+    city.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const hasChanges = () => {
     return Object.keys(formData).some(key => {
@@ -84,20 +135,6 @@ function Profile() {
     }));
     setError(null);
     setSuccessMessage('');
-  };
-
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result
-          .replace('data:', '')
-          .replace(/^.+,/, '');
-        resolve(base64String);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleFileChange = async (e) => {
@@ -120,50 +157,39 @@ function Profile() {
     try {
       setLoading(true);
       setError(null);
-      
-      const base64String = await convertFileToBase64(file);
-      const fullImageString = `data:${file.type};base64,${base64String}`;
-      
-      const updatePayload = {
-        [fieldName]: base64String
-      };
 
-      const token = localStorage.getItem("authToken");
-      const response = await fetch('http://localhost:3001/provider/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updatePayload)
-      });
+      // Upload to Cloudinary
+      const formDataImage = new FormData();
+      formDataImage.append('file', file);
+      formDataImage.append('upload_preset', 'ml_default2');
 
-      if (!response.ok) {
-        throw new Error('Failed to update file');
+      const uploadRes = await fetch(
+        'https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload',
+        {
+          method: 'POST',
+          body: formDataImage
+        }
+      );
+
+      if (!uploadRes.ok) {
+        throw new Error('Failed to upload image to cloud storage');
       }
 
-      const result = await response.json();
+      const imageData = await uploadRes.json();
+      const imageUrl = imageData.secure_url;
+
+      // Update form data with the Cloudinary URL
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: imageUrl
+      }));
       
-      if (result.success) {
-        setFormData(prev => ({
-          ...prev,
-          [fieldName]: fullImageString
-        }));
-        
-        setFileNames(prev => ({
-          ...prev,
-          [fieldName]: file.name
-        }));
+      setFileNames(prev => ({
+        ...prev,
+        [fieldName]: file.name
+      }));
 
-        setOriginalData(prev => ({
-          ...prev,
-          [fieldName]: fullImageString
-        }));
-
-        setSuccessMessage('File uploaded successfully');
-      } else {
-        throw new Error(result.message || 'Update failed');
-      }
+      setSuccessMessage('File uploaded successfully');
     } catch (error) {
       console.error('File processing error:', error);
       setError(error.message || 'Failed to process file. Please try again.');
@@ -194,12 +220,12 @@ function Profile() {
     try {
       setLoading(true);
       setError(null);
-  
-      //  upload to Cloudinary
+
+      // Upload to Cloudinary
       const formDataImage = new FormData();
       formDataImage.append('file', file);
       formDataImage.append('upload_preset', 'ml_default2');
-  
+
       const uploadRes = await fetch(
         'https://api.cloudinary.com/v1_1/dlg8j6m69/image/upload',
         {
@@ -207,50 +233,21 @@ function Profile() {
           body: formDataImage
         }
       );
-  
+
       if (!uploadRes.ok) {
         throw new Error('Failed to upload image to cloud storage');
       }
-  
+
       const imageData = await uploadRes.json();
       const imageUrl = imageData.secure_url;
-  
-      //  update the profile with the image URL
-      const token = localStorage.getItem("authToken");
-      const response = await fetch('http://localhost:3001/provider/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          photoUrl: imageUrl 
-        })
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Server error while updating profile');
-      }
-  
-      const result = await response.json();
-      
-      if (result.success) {
-        // Update local state with URL
-        setFormData(prev => ({
-          ...prev,
-          photoUrl: imageUrl
-        }));
-  
-        setOriginalData(prev => ({
-          ...prev,
-          photoUrl: imageUrl
-        }));
-  
-        setSuccessMessage('Profile photo updated successfully');
-      } else {
-        throw new Error(result.message || 'Update failed');
-      }
+
+      // Update form data with the Cloudinary URL
+      setFormData(prev => ({
+        ...prev,
+        photoUrl: imageUrl
+      }));
+
+      setSuccessMessage('Profile photo uploaded successfully');
     } catch (error) {
       console.error('Photo upload error:', error);
       setError(error.message || 'Failed to upload profile photo. Please try again.');
@@ -258,8 +255,8 @@ function Profile() {
       setLoading(false);
     }
   };
+
   const validateEmail = (email) => {
-   
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(String(email).toLowerCase());
   };
@@ -296,11 +293,7 @@ function Profile() {
       Object.keys(formData).forEach(key => {
         if (formData[key] !== originalData[key] && 
             (key !== 'password' || formData[key] !== '')) {
-          if (typeof formData[key] === 'string' && formData[key].startsWith('data:image')) {
-            changedFields[key] = formData[key].substring(formData[key].indexOf(',') + 1);
-          } else {
-            changedFields[key] = formData[key];
-          }
+          changedFields[key] = formData[key];
         }
       });
 
@@ -334,8 +327,6 @@ function Profile() {
             password: ''
           }));
         }
-
-        fetchProfileData();
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -458,14 +449,14 @@ function Profile() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                       <input
-                       id="photo-input"
-                          type="file"
-                           name="photoUrl"
-                           onChange={handlePhotoUpload}
-                             disabled={loading}
-                             className="hidden"
-                               accept="image/jpeg,image/png,image/gif"
-                                      />
+                        id="photo-input"
+                        type="file"
+                        name="photoUrl"
+                        onChange={handlePhotoUpload}
+                        disabled={loading}
+                        className="hidden"
+                        accept="image/jpeg,image/png,image/gif"
+                      />
                     </label>
                   </div>
                 </div>
@@ -487,31 +478,31 @@ function Profile() {
               </div>
 
               <div>
-  <label className="block font-semibold text-gray-700">
-    Email Address*
-  </label>
-  <input
-    type="email"
-    name="email"
-    value={formData.email}
-    onChange={handleInputChange}
-    onBlur={(e) => {
-      if (!validateEmail(e.target.value)) {
-        setError('Please enter a valid email address');
-      } else {
-        setError(null);
-      }
-    }}
-    placeholder="Enter your email"
-    required
-    className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
-  />
-  {!validateEmail(formData.email) && formData.email && (
-    <p className="mt-1 text-sm text-red-500">
-      Please enter a valid email address
-    </p>
-  )}
-</div>
+                <label className="block font-semibold text-gray-700">
+                  Email Address*
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onBlur={(e) => {
+                    if (!validateEmail(e.target.value)) {
+                      setError('Please enter a valid email address');
+                    } else {
+                      setError(null);
+                    }
+                  }}
+                  placeholder="Enter your email"
+                  required
+                  className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
+                />
+                {!validateEmail(formData.email) && formData.email && (
+                  <p className="mt-1 text-sm text-red-500">
+                    Please enter a valid email address
+                  </p>
+                )}
+              </div>
 
               <div>
                 <label className="block font-semibold text-gray-700">
@@ -527,33 +518,63 @@ function Profile() {
                 />
               </div>
 
-              <div>
-                <label className="block font-semibold text-gray-700">
-                  Address
+              {/* City Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <label className="block font-semibold text-gray-700 mb-2">
+                  City
                 </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter your address"
-                  className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
-                />
-              </div>
+                <div
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg cursor-pointer flex items-center"
+                  onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                >
+                  {formData.city ? (
+                    <span>{formData.city}</span>
+                  ) : (
+                    <span className="text-gray-400">Select City</span>
+                  )}
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 mt-2">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                    </svg>
+                  </span>
+                </div>
 
-              {/* <div className="md:col-span-2">
-                <label className="block font-semibold text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter new password to change"
-                  className="mt-2 block w-full rounded-lg border border-gray-300 text-gray-700 p-3 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-100 focus:ring-opacity-50"
-                />
-              </div> */}
+                {isCityDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <div className="p-2">
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        placeholder="Search a city"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {filteredCities.map((city) => (
+                        <div
+                          key={city.code}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                          onClick={() => handleCitySelect(city)}
+                        >
+                          <span className="mr-2">{city.flag}</span>
+                          <span>{city.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mt-8 flex flex-col items-center space-y-4">

@@ -117,29 +117,7 @@ const Dashboardp = () => {
                 Easily find the best services near you, with trusted professionals at your fingertips.
               </p>
               
-              {/* Search Section */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
-                <input
-                  type="text"
-                  placeholder="What service are you looking for?"
-                  className="flex-grow p-3 rounded-lg border text-black text-base w-full sm:w-auto"
-                  value={service}
-                  onChange={(e) => setService(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="City"
-                  className="p-3 rounded-lg border text-black text-base w-full sm:w-auto"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-                <button
-                  className="bg-orange-500 text-white px-6 py-3 text-base font-semibold rounded-lg hover:bg-orange-600 w-full sm:w-auto"
-                  onClick={handleSearch}
-                >
-                  Search
-                </button>
-              </div>
+              
             </div>
 
             {/* Right Side - Image */}

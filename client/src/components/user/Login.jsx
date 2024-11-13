@@ -64,6 +64,7 @@ const LoginUser = () => {
         // Redirect to home page
         navigate("/");
       }
+
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
