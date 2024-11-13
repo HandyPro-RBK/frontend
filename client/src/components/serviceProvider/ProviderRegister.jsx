@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./image/1.png";
@@ -93,32 +94,23 @@ const RegisterProvider = () => {
       }
 
       try {
-        const base64String = await convertFileToBase64(file);
-        setFormData({
-          ...formData,
-          [fieldName]: base64String,
-        });
-        setFileName({
-          ...fileName,
-          [fieldName]: file.name,
-        });
+        const reader = new FileReader();
+        reader.onload = () => {
+          setFormData({
+            ...formData,
+            [fieldName]: reader.result,
+          });
+          setFileName({
+            ...fileName,
+            [fieldName]: file.name,
+          });
+        };
+        reader.readAsDataURL(file);
       } catch (error) {
         setError("Error processing file");
-        console.error("File conversion error:", error);
+        console.error("File processing error:", error);
       }
     }
-  };
-
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result.split(",")[1];
-        resolve(base64String);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleSubmit = async (e) => {

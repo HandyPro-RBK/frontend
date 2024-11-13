@@ -21,6 +21,8 @@ const LoginUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+
     try {
       const response = await fetch("http://localhost:3001/user/login", {
         method: "POST",
@@ -29,24 +31,45 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      
-      if (data.token) {
-        // Store all necessary data for chat and auth
+
+      // Handle error responses
+      if (!response.ok) {
+        setErrorMessage(data.message || "Login failed");
+        return;
+      }
+
+      if (data.status === "error") {
+        setErrorMessage(data.message);
+        return;
+      }
+
+      // If login is successful
+      if (data.status === "success" && data.token) {
+        // Store the token
         localStorage.setItem("authToken", data.token);
-        localStorage.setItem("userId", data.user.id.toString());
+
+        // Decode the JWT token to get user info
+        const tokenPayload = JSON.parse(atob(data.token.split(".")[1]));
+
+        // Store user information from token
+        localStorage.setItem("userId", tokenPayload.id.toString());
         localStorage.setItem("userType", "CUSTOMER");
         localStorage.setItem("role", "user");
-        localStorage.setItem("username", data.user.username);
-        if (data.user.photoUrl) {
-          localStorage.setItem("photoUrl", data.user.photoUrl);
-        }
+
+        // Store minimal info we have
+        localStorage.setItem("email", tokenPayload.email);
+
+        // Redirect to home page
         navigate("/");
-      } else {
-        setErrorMessage(data.message || "Login failed");
       }
+
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage(
+        "An error occurred while trying to log in. Please try again."
+      );
     }
   };
 
