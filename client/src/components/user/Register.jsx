@@ -38,6 +38,8 @@ const Register = () => {
         body: JSON.stringify(formData),
       });
       if (response.status === 201) {
+        const data = await response.json();
+        localStorage.setItem("authToken", data.token);
         navigate("/");
       } else {
         const errorData = await response.text();
