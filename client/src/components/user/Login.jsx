@@ -33,7 +33,7 @@ const LoginUser = () => {
       });
 
       const data = await response.json();
-      
+
       // Handle error responses
       if (!response.ok) {
         setErrorMessage(data.message || "Login failed");
@@ -49,10 +49,10 @@ const LoginUser = () => {
       if (data.status === "success" && data.token) {
         // Store the token
         localStorage.setItem("authToken", data.token);
-        
+
         // Decode the JWT token to get user info
-        const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
-        
+        const tokenPayload = JSON.parse(atob(data.token.split(".")[1]));
+
         // Store user information from token
         localStorage.setItem("userId", tokenPayload.id.toString());
         localStorage.setItem("userType", "CUSTOMER");
@@ -60,14 +60,16 @@ const LoginUser = () => {
 
         // Store minimal info we have
         localStorage.setItem("email", tokenPayload.email);
-        
+
         // Redirect to home page
         navigate("/");
       }
 
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMessage("An error occurred while trying to log in. Please try again.");
+      setErrorMessage(
+        "An error occurred while trying to log in. Please try again."
+      );
     }
   };
 
