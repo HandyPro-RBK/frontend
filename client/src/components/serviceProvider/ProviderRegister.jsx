@@ -140,8 +140,24 @@ const RegisterProvider = () => {
       }
 
       const data = await response.json();
+      // Store user data
       localStorage.setItem("authToken", data.token);
-      navigate("/");
+      localStorage.setItem("userId", data.provider.id.toString());
+      localStorage.setItem("userType", "PROVIDER");
+      localStorage.setItem("role", "provider");
+      localStorage.setItem("username", data.provider.username);
+      localStorage.setItem("isAvailable", data.provider.isAvailable.toString());
+
+      if (data.provider.photoUrl) {
+        localStorage.setItem("photoUrl", data.provider.photoUrl);
+      }
+
+      // Only show deactivation notice if account is not available
+      if (!data.provider.isAvailable) {
+        setShowDeactivationNotice(true);
+      }
+
+      navigate("/ServiceProvider");
     } catch (error) {
       setError(error.message || "An error occurred during registration");
       console.error("Registration error:", error);
