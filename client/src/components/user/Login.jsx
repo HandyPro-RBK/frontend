@@ -63,6 +63,8 @@ const LoginUser = () => {
 
         // Redirect to home page
         navigate("/");
+      } else {
+        setErrorMessage(data.message || "Login failed");
       }
 
     } catch (error) {

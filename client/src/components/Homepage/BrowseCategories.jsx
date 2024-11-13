@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import CategoryCard from "./CategoryCard";
-import ServiceDetailsModal from "./ServiceDetailsModal";
 import api from "../utils/api";
 
 const BrowseCategories = ({ searchParams }) => {
@@ -9,8 +8,6 @@ const BrowseCategories = ({ searchParams }) => {
   const [activeCategory, setActiveCategory] = useState("Plumbing");
   const [categories, setCategories] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -69,19 +66,6 @@ const BrowseCategories = ({ searchParams }) => {
     }
   }, [categories, activeCategory, searchParams]);
 
-  const handleServiceClick = async (serviceId) => {
-    try {
-      const { data: serviceDetails } = await api.get(
-        `/my-services/${serviceId}`
-      );
-      setSelectedService(serviceDetails);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Error fetching service details:", error);
-      setError("Failed to load service details");
-    }
-  };
-
   if (error) {
     return <div className="text-center text-red-600 p-4">{error}</div>;
   }
@@ -124,26 +108,15 @@ const BrowseCategories = ({ searchParams }) => {
           {filteredServices.map((service) => (
             <CategoryCard
               key={service.id}
+              id={service.id}
               title={service.name}
               image={service.image}
-              rating={service.provider.rating}
+              averageRating={service.averageRating}
               providerName={service.provider.username}
-              onClick={() => handleServiceClick(service.id)}
             />
           ))}
         </div>
       </div>
-
-      {selectedService && (
-        <ServiceDetailsModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedService(null);
-          }}
-          service={selectedService}
-        />
-      )}
     </div>
   );
 };
