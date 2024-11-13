@@ -44,7 +44,7 @@ const CategoryCard = ({
   );
 
   const formatRating = (rating) => {
-    return rating?.toFixed(1) || "New";
+    return rating > 0 ? rating.toFixed(1) : "0.0";
   };
 
   return (
