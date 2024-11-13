@@ -11,9 +11,6 @@ import {
   Shield,
   Award,
   ThumbsUp,
-  User,
-  CheckCircle,
-  Clock8,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -27,8 +24,6 @@ const ServicePage = () => {
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imageError, setImageError] = useState(false);
-  const [providerImageError, setProviderImageError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
 
