@@ -1,7 +1,9 @@
+// ServiceDetailsModal.jsx
 import React, { useState } from "react";
-import { X, Star, Clock } from "lucide-react";
+import { X, Star, Clock, MapPin } from "lucide-react";
 import BookingForm from "./BookingForm";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
   const navigate = useNavigate();
@@ -24,6 +26,47 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
     setIsBookingFormOpen(true);
   };
 
+  const handleContactClick = async () => {
+    const token = localStorage.getItem("authToken");
+    const userId = localStorage.getItem("userId");
+    
+    if (!token || !userId) {
+      const confirmLogin = window.confirm(
+        "Please log in to contact the provider. Would you like to go to the login page?"
+      );
+      if (confirmLogin) {
+        navigate("/login-user");
+      }
+      return;
+    }
+  
+    try {
+      // Vérifie d'abord si une conversation existe déjà
+      const checkExisting = await axios.get(
+        `http://localhost:3001/api/conversations/${userId}/Allconversations`
+      );
+  
+      let existingConversation = checkExisting.data.find(
+        conv => conv.providerId === service.providerId && conv.UserId === parseInt(userId)
+      );
+  
+      if (existingConversation) {
+        // Si la conversation existe, naviguer directement vers celle-ci
+        navigate("/messenger", { state: { currentChat: existingConversation } });
+      } else {
+        // Si pas de conversation existante, en créer une nouvelle
+        const response = await axios.post("http://localhost:3001/api/conversations/create", {
+          userId: parseInt(userId),
+          providerId: service.providerId
+        });
+  
+        navigate("/messenger", { state: { currentChat: response.data } });
+      }
+    } catch (error) {
+      console.error("Error handling conversation:", error);
+      alert("Failed to start conversation. Please try again.");
+    }
+  };
   const handleBookingFormClose = () => {
     setIsBookingFormOpen(false);
   };
@@ -54,16 +97,16 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
               <div className="flex items-center space-x-2">
                 <Star className="h-5 w-5 text-yellow-400 fill-current" />
                 <span className="text-lg font-semibold">
-                  {service.averageRating.toFixed(1)} ({service.reviews?.length}{" "}
+                  {service.averageRating?.toFixed(1) || "New"} ({service.reviews?.length || 0}{" "}
                   reviews)
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-5 w-5 text-gray-500" />
-                <span>Duration: {service.duration} minutes</span>
+                <span>Duration: {service.duration} hours</span>
               </div>
               <div className="text-2xl font-bold text-blue-900">
-                ${service.price}
+                {service.price} Dinar
               </div>
               <button
                 className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
@@ -71,6 +114,13 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
                 disabled={isLoading}
               >
                 {isLoading ? "Processing..." : "Book Now"}
+              </button>
+              <button
+                className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                onClick={handleContactClick}
+                disabled={isLoading}
+              >
+                {isLoading ? "Starting chat..." : "Contact Provider"}
               </button>
             </div>
           </div>
@@ -91,9 +141,15 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
                 />
                 <div>
                   <p className="font-semibold">{service.provider.username}</p>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="ml-1">{service.provider.rating}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="ml-1">{service.provider.rating}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span className="ml-1">{service.provider.city}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -132,7 +188,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service }) => {
       {isBookingFormOpen && (
         <BookingForm
           serviceId={service.id}
-          providerId={service.provider.id}
+          providerId={service.providerId}
           onClose={handleBookingFormClose}
         />
       )}

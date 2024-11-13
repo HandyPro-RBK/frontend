@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import BrowseCategories from "./components/Homepage/BrowseCategories";
-import WorkersNearYou from "./pages/WorkersNearYou";
 import AddService from "./pages/AddService";
 import Dashboard from "./components/dashboard/Dashboard";
 import UserBookings from "./components/dashboard/UserBookings";
@@ -17,6 +16,7 @@ import History from "./components/serviceProvider/History";
 import ProviderProfile from "./components/serviceProvider/Profile";
 import ServiceDetail from "./components/serviceProvider/ServiceDetail";
 import PrivateRoute from "./components/common/PrivateRoute";
+import Messanger from "./components/messages/Messenger";
 import Dashboardp from "./components/serviceProvider/Dashboard";
 import Requests from "./components/serviceProvider/Requests";
 
@@ -28,10 +28,8 @@ const App = () => {
         <Route path="/categories" element={<BrowseCategories />} />
         <Route path="/ServiceProvider" element={<Dashboardp />} />
         <Route path="/requests" element={<Requests />} />
-        <Route
-          path="/categories/:categoryName/:city"
-          element={<WorkersNearYou />}
-        />
+        <Route path="/ServiceProvider" element={<Dashboardp />} />
+        <Route path="/requests" element={<Requests />} />
         <Route path="/login-user" element={<LoginUser />} />
         <Route path="/login-provider" element={<LoginProvider />} />
         <Route path="/register-user" element={<RegisterUser />} />
@@ -40,6 +38,7 @@ const App = () => {
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<ProviderProfile />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
+        <Route path="/messenger" element={<Messanger />} />
 
         {/* Protected Dashboard Routes */}
         <Route
@@ -88,4 +87,3 @@ const App = () => {
 };
 
 export default App;
-//test

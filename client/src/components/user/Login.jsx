@@ -21,6 +21,8 @@ const LoginUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+
     try {
       const response = await fetch("http://localhost:3001/user/login", {
         method: "POST",
@@ -29,15 +31,44 @@ const LoginUser = () => {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
-        navigate("/");
-      } else {
+
+      // Handle error responses
+      if (!response.ok) {
         setErrorMessage(data.message || "Login failed");
+        return;
+      }
+
+      if (data.status === "error") {
+        setErrorMessage(data.message);
+        return;
+      }
+
+      // If login is successful
+      if (data.status === "success" && data.token) {
+        // Store the token
+        localStorage.setItem("authToken", data.token);
+
+        // Decode the JWT token to get user info
+        const tokenPayload = JSON.parse(atob(data.token.split(".")[1]));
+
+        // Store user information from token
+        localStorage.setItem("userId", tokenPayload.id.toString());
+        localStorage.setItem("userType", "CUSTOMER");
+        localStorage.setItem("role", "user");
+
+        // Store minimal info we have
+        localStorage.setItem("email", tokenPayload.email);
+
+        // Redirect to home page
+        navigate("/");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      console.error("Login error:", error);
+      setErrorMessage(
+        "An error occurred while trying to log in. Please try again."
+      );
     }
   };
 
@@ -63,6 +94,7 @@ const LoginUser = () => {
           />
         </svg>
       </button>
+
       {/* Left side with logo */}
       <div className="w-1/2 bg-[#1034A6] h-screen flex items-center justify-center">
         <div className="text-white text-4xl font-bold">

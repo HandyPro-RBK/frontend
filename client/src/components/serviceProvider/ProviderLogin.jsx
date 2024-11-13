@@ -1,5 +1,7 @@
+// LoginProvider.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import DeactivationNotice from "./DeactivationNotice";
 import logo from "./image/1.png";
 
 const LoginProvider = () => {
@@ -7,7 +9,7 @@ const LoginProvider = () => {
     email: "",
     password: "",
   });
-
+  const [showDeactivationNotice, setShowDeactivationNotice] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,30 +24,55 @@ const LoginProvider = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/service-provider/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "http://localhost:3001/service-provider/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data);
+      }
       if (data.token) {
+        // Store user data
         localStorage.setItem("authToken", data.token);
-        navigate("/serviceProvider");
+        localStorage.setItem("userId", data.provider.id.toString());
+        localStorage.setItem("userType", "PROVIDER");
+        localStorage.setItem("role", "provider");
+        localStorage.setItem("username", data.provider.username);
+        localStorage.setItem(
+          "isAvailable",
+          data.provider.isAvailable.toString()
+        );
+
+        if (data.provider.photoUrl) {
+          localStorage.setItem("photoUrl", data.provider.photoUrl);
+        }
+
+        // Only show deactivation notice if account is not available
+        if (!data.provider.isAvailable) {
+          setShowDeactivationNotice(true);
+        }
+
+        navigate("/ServiceProvider");
       } else {
         setErrorMessage(data.message || "Login failed");
       }
     } catch (error) {
-      setErrorMessage("Email or password not correct");
+      setErrorMessage(error.message || "Email or password not correct");
     }
   };
-
   return (
     <div className="flex">
       {/* Home button */}
       <button
-        onClick={() => navigate("/serviceProvider")}
+        onClick={() => navigate("/")}
         className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
         title="Go to Home"
       >
@@ -63,6 +90,7 @@ const LoginProvider = () => {
           />
         </svg>
       </button>
+
       {/* Left side with logo */}
       <div className="w-1/2 bg-[#1034A6] h-screen flex items-center justify-center">
         <div className="text-white text-4xl font-bold">
@@ -184,8 +212,12 @@ const LoginProvider = () => {
           </div>
         </div>
       </div>
+
+      <DeactivationNotice
+        isOpen={showDeactivationNotice}
+        onClose={() => setShowDeactivationNotice(false)}
+      />
     </div>
   );
 };
-
 export default LoginProvider;
