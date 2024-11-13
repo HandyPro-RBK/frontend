@@ -1,7 +1,6 @@
-// LoginProvider.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import DeactivationNotice from './DeactivationNotice';
+import DeactivationNotice from "./DeactivationNotice";
 import logo from "./image/1.png";
 
 const LoginProvider = () => {
@@ -46,17 +45,20 @@ const LoginProvider = () => {
         localStorage.setItem("userType", "PROVIDER");
         localStorage.setItem("role", "provider");
         localStorage.setItem("username", data.provider.username);
-        localStorage.setItem("isAvailable", data.provider.isAvailable.toString());
-        
+        localStorage.setItem(
+          "isAvailable",
+          data.provider.isAvailable.toString()
+        );
+
         if (data.provider.photoUrl) {
           localStorage.setItem("photoUrl", data.provider.photoUrl);
         }
-  
+
         // Only show deactivation notice if account is not available
         if (!data.provider.isAvailable) {
           setShowDeactivationNotice(true);
         }
-  
+
         navigate("/ServiceProvider");
       } else {
         setErrorMessage(data.message || "Login failed");
@@ -210,10 +212,11 @@ const LoginProvider = () => {
         </div>
       </div>
 
-      <DeactivationNotice 
+      <DeactivationNotice
         isOpen={showDeactivationNotice}
         onClose={() => setShowDeactivationNotice(false)}
       />
     </div>
-)};
+  );
+};
 export default LoginProvider;
