@@ -66,6 +66,7 @@ const LoginUser = () => {
       } else {
         setErrorMessage(data.message || "Login failed");
       }
+
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
