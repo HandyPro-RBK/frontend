@@ -26,6 +26,7 @@ const UserProfile = () => {
   const fetchProfile = async () => {
     try {
       const userId = localStorage.getItem("userId");
+      console.log("User ID:", userId);
 
       if (!userId) {
         setError("User ID is missing");
