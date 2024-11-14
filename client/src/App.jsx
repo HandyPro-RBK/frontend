@@ -20,6 +20,7 @@ import Messanger from "./components/messages/Messenger";
 import Dashboardp from "./components/serviceProvider/Dashboard";
 import Requests from "./components/serviceProvider/Requests";
 
+import ProviderSales from "./components/payments/ProviderSales"
 const App = () => {
   return (
     <Router>
@@ -39,6 +40,9 @@ const App = () => {
         <Route path="/profile" element={<ProviderProfile />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/messenger" element={<Messanger />} />
+        <Route path="/provider/sales" element={<ProviderSales />} />
+        
+        
 
         {/* Protected Dashboard Routes */}
         <Route
@@ -73,6 +77,7 @@ const App = () => {
             </PrivateRoute>
           }
         />
+       
         <Route
           path="/dashboard/profile"
           element={

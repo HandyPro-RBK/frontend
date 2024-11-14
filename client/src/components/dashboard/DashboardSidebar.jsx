@@ -8,6 +8,7 @@ import {
   FaSignOutAlt,
   FaChevronLeft,
   FaChevronRight,
+ 
 } from "react-icons/fa";
 
 const DashboardSidebar = () => {
@@ -35,6 +36,7 @@ const DashboardSidebar = () => {
           label: "Notifications",
           badge: 3,
         },
+        
       ],
     },
     {
