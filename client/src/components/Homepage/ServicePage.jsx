@@ -4,7 +4,6 @@ import {
   Star,
   Clock,
   MapPin,
-  Heart,
   Share2,
   Calendar,
   MessageCircle,
@@ -24,7 +23,6 @@ const ServicePage = () => {
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
 
   useEffect(() => {
@@ -165,7 +163,7 @@ const ServicePage = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="relative h-[500px]">
+          <div className="relative h-[600px]">
             <img
               src={service.image}
               alt={service.name}
@@ -175,64 +173,52 @@ const ServicePage = () => {
                   "https://via.placeholder.com/800x500?text=Service+Image";
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
 
             {/* Service Title Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
               <div className="max-w-3xl">
-                <h1 className="text-4xl font-bold mb-4">{service.name}</h1>
-                <div className="flex flex-wrap gap-4 items-center text-sm">
-                  <div className="flex items-center bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <Star className="h-4 w-4 text-yellow-400 mr-2" />
+                <h1 className="text-5xl font-bold mb-6">{service.name}</h1>
+                <div className="flex flex-wrap gap-6 items-center text-base">
+                  <div className="flex items-center bg-black/40 px-6 py-3 rounded-full backdrop-blur-sm">
+                    <Star className="h-5 w-5 text-yellow-400 mr-2" />
                     <span>{service.averageRating?.toFixed(1) || "New"}</span>
                   </div>
-                  <div className="flex items-center bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <MapPin className="h-4 w-4 mr-2" />
+                  <div className="flex items-center bg-black/40 px-6 py-3 rounded-full backdrop-blur-sm">
+                    <MapPin className="h-5 w-5 mr-2" />
                     <span>{service.provider.city}</span>
                   </div>
-                  <div className="flex items-center bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <Clock className="h-4 w-4 mr-2" />
+                  <div className="flex items-center bg-black/40 px-6 py-3 rounded-full backdrop-blur-sm">
+                    <Clock className="h-5 w-5 mr-2" />
                     <span>{service.duration} hours</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="absolute top-4 right-4 flex space-x-2">
-              <button
-                onClick={() => setIsFavorite(!isFavorite)}
-                className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-              >
-                <Heart
-                  className={`h-6 w-6 ${
-                    isFavorite
-                      ? "fill-orange-600 text-orange-600"
-                      : "text-gray-600"
-                  }`}
-                />
-              </button>
+            {/* Share Button */}
+            <div className="absolute top-6 right-6">
               <button
                 onClick={handleShare}
-                className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+                className="p-4 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors"
               >
-                <Share2 className="h-6 w-6 text-gray-600" />
+                <Share2 className="h-6 w-6 text-blue-900" />
               </button>
             </div>
           </div>
 
           {/* Content Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 p-10">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-10">
               {/* Tabs */}
               <div className="border-b border-gray-200">
-                <nav className="flex space-x-8">
+                <nav className="flex space-x-10">
                   {["description", "reviews", "provider"].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                      className={`py-4 px-2 border-b-2 font-medium text-base ${
                         activeTab === tab
                           ? "border-orange-600 text-blue-900"
                           : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -248,38 +234,38 @@ const ServicePage = () => {
               <div className="mt-8">
                 {activeTab === "description" && (
                   <div className="prose max-w-none">
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 leading-relaxed text-lg">
                       {service.description}
                     </p>
                   </div>
                 )}
 
                 {activeTab === "reviews" && (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {service.reviews?.map((review) => (
                       <div
                         key={review.id}
-                        className="bg-gray-50 rounded-xl p-6"
+                        className="bg-gray-50 rounded-xl p-8"
                       >
-                        <div className="flex items-center space-x-4 mb-4">
+                        <div className="flex items-center space-x-6 mb-6">
                           <img
                             src={review.user.photoUrl}
                             alt={review.user.username}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className="w-20 h-20 rounded-full object-cover"
                             onError={(e) => {
                               e.target.src =
-                                "https://via.placeholder.com/48x48?text=User";
+                                "https://via.placeholder.com/80x80?text=User";
                             }}
                           />
                           <div>
-                            <p className="font-semibold">
+                            <p className="font-semibold text-lg">
                               {review.user.username}
                             </p>
-                            <div className="flex items-center">
+                            <div className="flex items-center mt-2">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`h-4 w-4 ${
+                                  className={`h-5 w-5 ${
                                     i < review.rating
                                       ? "text-yellow-400 fill-current"
                                       : "text-gray-300"
@@ -289,41 +275,47 @@ const ServicePage = () => {
                             </div>
                           </div>
                         </div>
-                        <p className="text-gray-600">{review.comment}</p>
+                        <p className="text-gray-600 text-lg">
+                          {review.comment}
+                        </p>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {activeTab === "provider" && (
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <div className="flex items-center space-x-4 mb-6">
+                  <div className="bg-gray-50 rounded-xl p-8">
+                    <div className="flex items-center space-x-6 mb-8">
                       <img
                         src={service.provider.photoUrl}
                         alt={service.provider.username}
-                        className="w-16 h-16 rounded-full object-cover"
+                        className="w-24 h-24 rounded-full object-cover"
                         onError={(e) => {
                           e.target.src =
-                            "https://via.placeholder.com/64x64?text=Provider";
+                            "https://via.placeholder.com/96x96?text=Provider";
                         }}
                       />
                       <div>
-                        <h3 className="text-xl font-semibold">
+                        <h3 className="text-2xl font-semibold text-blue-900">
                           {service.provider.username}
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-lg mt-2">
                           Professional Service Provider
                         </p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="bg-white p-4 rounded-lg">
+                    <div className="grid grid-cols-2 gap-6 mb-8">
+                      <div className="bg-white p-6 rounded-lg shadow-sm">
                         <p className="text-gray-500">Experience</p>
-                        <p className="text-lg font-semibold">5+ years</p>
+                        <p className="text-xl font-semibold text-blue-900">
+                          5+ years
+                        </p>
                       </div>
-                      <div className="bg-white p-4 rounded-lg">
+                      <div className="bg-white p-6 rounded-lg shadow-sm">
                         <p className="text-gray-500">Completed Jobs</p>
-                        <p className="text-lg font-semibold">100+</p>
+                        <p className="text-xl font-semibold text-blue-900">
+                          100+
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -333,10 +325,10 @@ const ServicePage = () => {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
-                <div className="mb-6">
-                  <p className="text-gray-500">Price</p>
-                  <p className="text-3xl font-bold text-blue-900">
+              <div className="bg-white rounded-xl shadow-lg p-8 sticky top-8">
+                <div className="mb-8">
+                  <p className="text-gray-500 text-lg">Price</p>
+                  <p className="text-4xl font-bold text-blue-900 mt-2">
                     {service.price} Dinar
                   </p>
                 </div>
@@ -344,24 +336,26 @@ const ServicePage = () => {
                 <div className="space-y-4">
                   <button
                     onClick={handleBookNowClick}
-                    className="w-full bg-blue-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-800 transition-colors flex items-center justify-center space-x-2"
+                    className="w-full bg-blue-900 text-white py-4 px-6 rounded-lg font-medium hover:bg-blue-800 transition-colors flex items-center justify-center space-x-3 text-lg"
                   >
-                    <Calendar className="h-5 w-5" />
+                    <Calendar className="h-6 w-6" />
                     <span>Book Now</span>
                   </button>
 
                   <button
                     onClick={handleContactClick}
-                    className="w-full bg-white text-orange-600 py-3 px-4 rounded-lg font-medium border-2 border-orange-600 hover:bg-orange-50 transition-colors flex items-center justify-center space-x-2"
+                    className="w-full bg-white text-orange-600 py-4 px-6 rounded-lg font-medium border-2 border-orange-600 hover:bg-orange-50 transition-colors flex items-center justify-center space-x-3 text-lg"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-6 w-6" />
                     <span>Contact Provider</span>
                   </button>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h4 className="font-medium mb-4">Service Guarantees</h4>
-                  <div className="space-y-3">
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <h4 className="font-medium text-lg mb-6">
+                    Service Guarantees
+                  </h4>
+                  <div className="space-y-4">
                     {[
                       { icon: Shield, text: "Service Protection" },
                       { icon: Award, text: "Quality Guaranteed" },
@@ -369,10 +363,10 @@ const ServicePage = () => {
                     ].map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center space-x-3 text-gray-600"
+                        className="flex items-center space-x-4 text-gray-600"
                       >
-                        <item.icon className="h-5 w-5 text-orange-600" />
-                        <span>{item.text}</span>
+                        <item.icon className="h-6 w-6 text-orange-600" />
+                        <span className="text-lg">{item.text}</span>
                       </div>
                     ))}
                   </div>
