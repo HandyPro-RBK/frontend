@@ -235,14 +235,7 @@ const Navbar = ({ onCategorySelect }) => {
                         My Bookings
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="/dashboard/notifications"
-                        className="block px-4 py-2 hover:bg-gray-100"
-                      >
-                        Notifications
-                      </Link>
-                    </li>
+                    {/* Removed Notifications link */}
                     <li>
                       <Link
                         to="/dashboard/profile"

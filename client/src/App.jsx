@@ -6,7 +6,6 @@ import AddService from "./pages/AddService";
 import Dashboard from "./components/dashboard/Dashboard";
 import UserBookings from "./components/dashboard/UserBookings";
 import BookingDetails from "./components/dashboard/BookingDetails";
-import Notifications from "./components/dashboard/Notifications";
 import UserProfile from "./components/dashboard/UserProfile";
 import RegisterUser from "./components/user/Register";
 import RegisterProvider from "./components/serviceProvider/ProviderRegister";
@@ -64,14 +63,6 @@ const App = () => {
             element={
               <PrivateRoute>
                 <BookingDetails />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/dashboard/notifications"
-            element={
-              <PrivateRoute>
-                <Notifications />
               </PrivateRoute>
             }
           />
