@@ -24,7 +24,7 @@ const LoginUser = () => {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:3001/user/login", {
+      const response = await fetch("http://localhost:3001/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,8 +63,9 @@ const LoginUser = () => {
 
         // Redirect to home page
         navigate("/");
+      } else {
+        setErrorMessage(data.message || "Login failed");
       }
-
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
