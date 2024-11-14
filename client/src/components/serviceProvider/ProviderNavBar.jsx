@@ -206,6 +206,7 @@ const ProviderNavBar = () => {
                     >
                       Profile
                     </Link>
+                    
                     <button
                       onClick={() => {
                         handleLogout();

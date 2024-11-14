@@ -20,6 +20,7 @@ import Requests from "./components/serviceProvider/Requests";
 import ServicePage from "./components/Homepage/ServicePage";
 import { ProfileProvider } from "./components/Homepage/ProfileContext"; // Import the ProfileProvider
 
+import ProviderSales from "./components/payments/ProviderSales"
 const App = () => {
   return (
     <ProfileProvider>
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/history" element={<History />} />
           <Route path="/profile" element={<ProviderProfile />} />
           <Route path="/messenger" element={<Messanger />} />
+          <Route path="/provider/sales" element={<ProviderSales />} />
 
           {/* Protected Dashboard Routes */}
           <Route

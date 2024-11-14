@@ -1,41 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../utils/api";
 import Navbar from "../Homepage/Navbar";
 import DashboardSidebar from "./DashboardSidebar";
+import PaymentSection from '../payments/PaymentSection';
+import PaymentStatusModal from '../payments/PaymentStatusModal';
 
 const BookingDetails = () => {
   const { bookingId } = useParams();
+  const [searchParams] = useSearchParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState({ status: '', message: '' });
+  const [confirmationModal, setConfirmationModal] = useState({
+    show: false,
+    action: null,
+    title: "",
+    message: "",
+  });
   const navigate = useNavigate();
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (!rating) {
-      setError("Please select a rating");
-      return;
-    }
-
-    try {
-      setSubmittingReview(true);
-      await api.post(`/dashboard/bookings/${bookingId}/review`, {
-        rating,
-        review,
-      });
-      await fetchBookingDetails();
-      setReview("");
-      setRating(0);
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to submit review");
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
 
   const fetchBookingDetails = async () => {
     try {
@@ -60,7 +48,71 @@ const BookingDetails = () => {
     if (bookingId) {
       fetchBookingDetails();
     }
-  }, [bookingId, navigate]);
+  }, [bookingId]);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (payment === "success") {
+      setPaymentStatus({
+        status: 'success',
+        message: 'Your payment was processed successfully!'
+      });
+      setShowPaymentModal(true);
+      fetchBookingDetails();
+    } else if (payment === "failed") {
+      setPaymentStatus({
+        status: 'failed',
+        message: 'Payment failed. Please try again or contact support.'
+      });
+      setShowPaymentModal(true);
+    }
+  }, [searchParams]);
+
+  const handleBookingSuccess = (message) => {
+    localStorage.setItem("bookingSuccess", message);
+    navigate("/dashboard/bookings");
+  };
+
+  const handleBookingAction = async (action) => {
+    try {
+      setLoading(true);
+      await api.post(`/dashboard/bookings/${bookingId}/${action}`);
+      handleBookingSuccess(`Booking has been ${action}ed successfully!`);
+    } catch (err) {
+      setError(err.response?.data?.error || `Failed to ${action} booking`);
+    } finally {
+      setLoading(false);
+      setConfirmationModal({
+        show: false,
+        action: null,
+        title: "",
+        message: "",
+      });
+    }
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!rating) {
+      setError("Please select a rating");
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+      await api.post(`/dashboard/bookings/${bookingId}/review`, {
+        rating,
+        review,
+      });
+      await fetchBookingDetails();
+      setReview("");
+      setRating(0);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const renderStarRating = (currentRating, isInteractive = false) => {
     return (
@@ -79,6 +131,33 @@ const BookingDetails = () => {
             ★
           </button>
         ))}
+      </div>
+    );
+  };
+
+  const ConfirmationModal = ({ show, title, message, onConfirm, onCancel }) => {
+    if (!show) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 className="text-xl font-bold mb-4">{title}</h3>
+          <p className="mb-6">{message}</p>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
       </div>
     );
   };
@@ -266,6 +345,13 @@ const BookingDetails = () => {
                 </div>
               </div>
 
+              {/* Payment Section */}
+              {booking.status === "CONFIRMED" && (
+                <div className="md:col-span-2">
+                  <PaymentSection bookingId={bookingId} />
+                </div>
+              )}
+
               {/* Booking Date and Time */}
               <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl">
                 <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
@@ -277,17 +363,14 @@ const BookingDetails = () => {
                     <p className="text-sm text-gray-500 mb-2">Scheduled for</p>
                     <p className="text-lg font-semibold text-blue-900">
                       {booking.bookingDate
-                        ? new Date(booking.bookingDate).toLocaleString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                            }
-                          )
+                        ? new Date(booking.bookingDate).toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "numeric",
+                            hour12: true,
+                          })
                         : "N/A"}
                     </p>
                   </div>
@@ -301,6 +384,40 @@ const BookingDetails = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Booking Actions */}
+              {booking.status === "PENDING" && (
+                <div className="md:col-span-2">
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={() =>
+                        setConfirmationModal({
+                          show: true,
+                          action: "confirm",
+                          title: "Confirm Booking",
+                          message: "Are you sure you want to confirm this booking?",
+                        })
+                      }
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Confirm Booking
+                    </button>
+                    <button
+                      onClick={() =>
+                        setConfirmationModal({
+                          show: true,
+                          action: "cancel",
+                          title: "Cancel Booking",
+                          message: "Are you sure you want to cancel this booking?",
+                        })
+                      }
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Cancel Booking
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Review Section */}
               {booking.status === "COMPLETED" && !booking.review && (
@@ -357,6 +474,7 @@ const BookingDetails = () => {
                 </div>
               )}
 
+              {/* Existing Review */}
               {booking.status === "COMPLETED" && booking.review && (
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl">
                   <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
@@ -364,24 +482,17 @@ const BookingDetails = () => {
                     Your Review
                   </h2>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <div className="mb-4">
-                      {renderStarRating(booking.rating)}
-                    </div>
-                    <p className="text-gray-700 mb-4 text-lg">
-                      "{booking.review}"
-                    </p>
+                    <div className="mb-4">{renderStarRating(booking.rating)}</div>
+                    <p className="text-gray-700 mb-4 text-lg">"{booking.review}"</p>
                     <div className="flex items-center text-sm text-gray-500">
                       <span className="mr-2">📅</span>
                       Posted on{" "}
                       {booking.reviewDate
-                        ? new Date(booking.reviewDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )
+                        ? new Date(booking.reviewDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
                         : "N/A"}
                     </div>
                   </div>
@@ -389,6 +500,32 @@ const BookingDetails = () => {
               )}
             </div>
           </div>
+
+          {/* Modals */}
+          <ConfirmationModal
+            show={confirmationModal.show}
+            title={confirmationModal.title}
+            message={confirmationModal.message}
+            onConfirm={() => handleBookingAction(confirmationModal.action)}
+            onCancel={() =>
+              setConfirmationModal({
+                show: false,
+                action: null,
+                title: "",
+                message: "",
+              })
+            }
+          />
+
+          <PaymentStatusModal
+            isOpen={showPaymentModal}
+            status={paymentStatus.status}
+            message={paymentStatus.message}
+            onClose={() => {
+              setShowPaymentModal(false);
+              navigate(`/dashboard/bookings/${bookingId}`, { replace: true });
+            }}
+          />
         </div>
       </div>
     </div>
