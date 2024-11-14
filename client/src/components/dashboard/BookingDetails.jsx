@@ -62,17 +62,19 @@ const BookingDetails = () => {
     }
   }, [bookingId, navigate]);
 
-  const renderStarRating = (currentRating) => {
+  const renderStarRating = (currentRating, isInteractive = false) => {
     return (
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
-            onClick={() => setRating(star)}
-            className={`text-2xl ${
-              star <= currentRating ? "text-yellow-400" : "text-gray-300"
-            }`}
+            onClick={() => isInteractive && setRating(star)}
+            className={`text-3xl transition-all duration-300 transform hover:scale-110 ${
+              star <= currentRating
+                ? "text-orange-600"
+                : "text-gray-300 hover:text-orange-400"
+            } ${isInteractive ? "cursor-pointer" : "cursor-default"}`}
           >
             ★
           </button>
@@ -81,16 +83,35 @@ const BookingDetails = () => {
     );
   };
 
+  const BackButton = () => (
+    <button
+      onClick={() => navigate("/dashboard/bookings")}
+      className="group flex items-center space-x-2 px-6 py-2.5 rounded-lg border-2 border-blue-900 hover:bg-blue-900 transition-all duration-300"
+    >
+      <span className="transform group-hover:-translate-x-1 transition-transform duration-300">
+        ←
+      </span>
+      <span className="font-semibold text-blue-900 group-hover:text-white transition-colors duration-300">
+        Back to Bookings
+      </span>
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="flex">
           <DashboardSidebar />
           <div className="flex-1 p-8">
             <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-900"></div>
-              <p className="mt-4 text-gray-700">Loading booking details...</p>
+              <div className="relative w-20 h-20">
+                <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-900 border-opacity-20 rounded-full"></div>
+                <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-900 border-l-transparent rounded-full animate-spin"></div>
+              </div>
+              <p className="mt-6 text-blue-900 font-medium text-lg animate-pulse">
+                Loading booking details...
+              </p>
             </div>
           </div>
         </div>
@@ -100,20 +121,21 @@ const BookingDetails = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="flex">
           <DashboardSidebar />
           <div className="flex-1 p-8">
-            <div className="bg-red-100 text-red-700 p-4 rounded-lg">
-              {error}
+            <div className="max-w-2xl mx-auto">
+              <BackButton />
+              <div className="mt-6 bg-red-50 text-red-700 p-8 rounded-xl shadow-lg border border-red-200 flex items-center space-x-4">
+                <div className="text-3xl">⚠️</div>
+                <div>
+                  <h3 className="font-bold text-lg mb-2">Error</h3>
+                  <p>{error}</p>
+                </div>
+              </div>
             </div>
-            <button
-              onClick={() => navigate("/dashboard/bookings")}
-              className="mt-4 px-4 py-2 text-blue-900 hover:text-blue-700"
-            >
-              Back to Bookings
-            </button>
           </div>
         </div>
       </div>
@@ -122,19 +144,20 @@ const BookingDetails = () => {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="flex">
           <DashboardSidebar />
           <div className="flex-1 p-8">
-            <div className="text-center">
-              <p className="text-gray-700">No booking found</p>
-              <button
-                onClick={() => navigate("/dashboard/bookings")}
-                className="mt-4 px-4 py-2 text-blue-900 hover:text-blue-700"
-              >
-                Back to Bookings
-              </button>
+            <div className="max-w-2xl mx-auto text-center">
+              <div className="mb-6 text-6xl">🔍</div>
+              <h2 className="text-2xl font-bold text-blue-900 mb-4">
+                No Booking Found
+              </h2>
+              <p className="text-gray-600 mb-8">
+                We couldn't find the booking you're looking for.
+              </p>
+              <BackButton />
             </div>
           </div>
         </div>
@@ -143,145 +166,224 @@ const BookingDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="flex">
         <DashboardSidebar />
         <div className="flex-1 p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Booking Details</h1>
-            <button
-              onClick={() => navigate("/dashboard/bookings")}
-              className="px-4 py-2 text-blue-900 hover:text-blue-700"
-            >
-              Back to Bookings
-            </button>
+          <div className="mb-8 flex justify-between items-center">
+            <h1 className="text-4xl font-bold text-blue-900 bg-gradient-to-r from-blue-900 to-orange-600 bg-clip-text text-transparent">
+              Booking Details
+            </h1>
+            <BackButton />
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-xl font-semibold mb-4">
-                  Service Information
-                </h2>
-                <div className="space-y-3">
-                  <p>
-                    <span className="font-medium">Service:</span>{" "}
-                    {booking.service?.name || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Description:</span>{" "}
-                    {booking.service?.description || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Price:</span> $
-                    {booking.service?.price || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Status: </span>
-                    <span
-                      className={`ml-2 px-2 py-1 rounded-full text-sm ${
-                        booking.status === "COMPLETED"
-                          ? "bg-green-100 text-green-800"
-                          : booking.status === "PENDING"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </p>
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div className="p-8 space-y-8">
+              {/* Service & Provider Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Service Information */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl transform transition-transform duration-300 hover:scale-[1.02]">
+                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                    <span className="mr-3">🛠</span>
+                    Service Information
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                      <span className="font-semibold text-blue-900 min-w-[120px]">
+                        Service:
+                      </span>
+                      <span className="text-gray-700">
+                        {booking.service?.name || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex items-start p-3 bg-white rounded-lg shadow-sm">
+                      <span className="font-semibold text-blue-900 min-w-[120px]">
+                        Description:
+                      </span>
+                      <span className="text-gray-700">
+                        {booking.service?.description || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                      <span className="font-semibold text-blue-900 min-w-[120px]">
+                        Price:
+                      </span>
+                      <span className="text-gray-700">
+                        ${booking.service?.price || "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                      <span className="font-semibold text-blue-900 min-w-[120px]">
+                        Status:
+                      </span>
+                      <span
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+                          booking.status === "COMPLETED"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "PENDING"
+                            ? "bg-orange-100 text-orange-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Provider Details */}
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl transform transition-transform duration-300 hover:scale-[1.02]">
+                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                    <span className="mr-3">👤</span>
+                    Provider Details
+                  </h2>
+                  <div className="flex items-center space-x-6">
+                    {booking.provider?.photoUrl && (
+                      <div className="relative">
+                        <img
+                          src={booking.provider.photoUrl}
+                          alt={booking.provider.username}
+                          className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                        />
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white"></div>
+                      </div>
+                    )}
+                    <div className="space-y-3">
+                      <p className="font-bold text-blue-900 text-xl">
+                        {booking.provider?.username || "N/A"}
+                      </p>
+                      <p className="text-gray-600 flex items-center">
+                        <span className="mr-2">📧</span>
+                        {booking.provider?.email || "N/A"}
+                      </p>
+                      <p className="text-gray-600 flex items-center">
+                        <span className="mr-2">📱</span>
+                        {booking.provider?.phone || "N/A"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Provider Details</h2>
-                <div className="flex items-center space-x-4 mb-4">
-                  {booking.provider?.photoUrl && (
-                    <img
-                      src={booking.provider.photoUrl}
-                      alt={booking.provider.username}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium">
-                      {booking.provider?.username || "N/A"}
+              {/* Booking Date and Time */}
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl">
+                <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                  <span className="mr-3">📅</span>
+                  Booking Schedule
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <p className="text-sm text-gray-500 mb-2">Scheduled for</p>
+                    <p className="text-lg font-semibold text-blue-900">
+                      {booking.bookingDate
+                        ? new Date(booking.bookingDate).toLocaleString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "numeric",
+                              hour12: true,
+                            }
+                          )
+                        : "N/A"}
                     </p>
-                    <p className="text-gray-600">
-                      {booking.provider?.email || "N/A"}
-                    </p>
-                    <p className="text-gray-600">
-                      {booking.provider?.phone || "N/A"}
+                  </div>
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <p className="text-sm text-gray-500 mb-2">Created on</p>
+                    <p className="text-lg font-semibold text-blue-900">
+                      {booking.createdAt
+                        ? new Date(booking.createdAt).toLocaleString()
+                        : "N/A"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="md:col-span-2">
-                <h2 className="text-xl font-semibold mb-4">
-                  Booking Date and Time
-                </h2>
-                <div className="space-y-2">
-                  <p>
-                    <span className="font-medium">Scheduled for:</span>{" "}
-                    {booking.bookingDate
-                      ? new Date(booking.bookingDate).toLocaleString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "numeric",
-                          minute: "numeric",
-                          hour12: true,
-                        })
-                      : "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Created on:</span>{" "}
-                    {booking.createdAt
-                      ? new Date(booking.createdAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
-
+              {/* Review Section */}
               {booking.status === "COMPLETED" && !booking.review && (
-                <div className="md:col-span-2">
-                  <h2 className="text-xl font-semibold mb-4">Leave a Review</h2>
-                  <form onSubmit={handleReviewSubmit} className="space-y-4">
-                    {renderStarRating(rating)}
-                    <textarea
-                      value={review}
-                      onChange={(e) => setReview(e.target.value)}
-                      placeholder="Share your experience..."
-                      className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows="4"
-                    />
+                <div className="bg-gradient-to-br from-blue-50 to-orange-50 p-8 rounded-2xl">
+                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                    <span className="mr-3">⭐</span>
+                    Leave a Review
+                  </h2>
+                  <form onSubmit={handleReviewSubmit} className="space-y-6">
+                    <div className="bg-white p-6 rounded-xl shadow-sm">
+                      {renderStarRating(rating, true)}
+                      <textarea
+                        value={review}
+                        onChange={(e) => setReview(e.target.value)}
+                        placeholder="Share your experience with this service..."
+                        className="w-full mt-4 p-4 border rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-transparent resize-none transition-all duration-300"
+                        rows="4"
+                      />
+                    </div>
                     <button
                       type="submit"
                       disabled={submittingReview}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                      className="w-full px-8 py-4 bg-blue-900 text-white rounded-xl hover:bg-orange-600 disabled:bg-gray-400 transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none"
                     >
-                      {submittingReview ? "Submitting..." : "Submit Review"}
+                      {submittingReview ? (
+                        <span className="flex items-center justify-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Submitting Review...
+                        </span>
+                      ) : (
+                        "Submit Review"
+                      )}
                     </button>
                   </form>
                 </div>
               )}
 
               {booking.status === "COMPLETED" && booking.review && (
-                <div className="md:col-span-2">
-                  <h2 className="text-xl font-semibold mb-4">Your Review</h2>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="mb-2">
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl">
+                  <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+                    <span className="mr-3">📝</span>
+                    Your Review
+                  </h2>
+                  <div className="bg-white p-6 rounded-xl shadow-lg">
+                    <div className="mb-4">
                       {renderStarRating(booking.rating)}
                     </div>
-                    <p className="text-gray-700">{booking.review}</p>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-gray-700 mb-4 text-lg">
+                      "{booking.review}"
+                    </p>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <span className="mr-2">📅</span>
                       Posted on{" "}
                       {booking.reviewDate
-                        ? new Date(booking.reviewDate).toLocaleDateString()
+                        ? new Date(booking.reviewDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )
                         : "N/A"}
-                    </p>
+                    </div>
                   </div>
                 </div>
               )}

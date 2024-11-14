@@ -3,6 +3,7 @@ import api from "../utils/api";
 import Navbar from "../Homepage/Navbar";
 import DashboardSidebar from "./DashboardSidebar";
 import { useProfile } from "../Homepage/ProfileContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const UserProfile = () => {
   const { setProfilePhotoUrl } = useProfile();
@@ -26,7 +27,6 @@ const UserProfile = () => {
   const fetchProfile = async () => {
     try {
       const userId = localStorage.getItem("userId");
-
       if (!userId) {
         setError("User ID is missing");
         return;
@@ -34,7 +34,7 @@ const UserProfile = () => {
 
       const response = await api.get(`/user/profile/${userId}`);
       setProfile(response.data);
-      setProfilePhotoUrl(response.data.photoUrl); // Set the photo URL in context
+      setProfilePhotoUrl(response.data.photoUrl);
       setFormData({
         username: response.data.username,
         email: response.data.email,
@@ -72,27 +72,18 @@ const UserProfile = () => {
     try {
       setUploading(true);
       const userId = localStorage.getItem("userId");
-
       const response = await api.post(
         `/user/profile/photo/${userId}`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       const newPhotoUrl = response.data.data.photoUrl;
-
-      // Update both local state and context
-      setProfile({
-        ...profile,
-        photoUrl: newPhotoUrl,
-      });
-      setProfilePhotoUrl(newPhotoUrl); // Update the shared context
+      setProfile({ ...profile, photoUrl: newPhotoUrl });
+      setProfilePhotoUrl(newPhotoUrl);
       setSelectedFile(null);
-
       await fetchProfile();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to upload photo");
@@ -115,12 +106,12 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <Navbar />
         <div className="flex">
           <DashboardSidebar />
-          <div className="flex-1 p-8">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-900"></div>
+          <div className="flex-1 p-8 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gradient-to-r from-blue-900 to-orange-600"></div>
           </div>
         </div>
       </div>
@@ -128,183 +119,206 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navbar />
       <div className="flex">
         <DashboardSidebar />
         <div className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-6">Profile</h1>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-900 to-orange-600 bg-clip-text text-transparent border-b pb-4">
+              My Profile
+            </h1>
 
-          {error && <div className="text-red-500 mb-4">{error}</div>}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded"
+              >
+                {error}
+              </motion.div>
+            )}
 
-          {profile && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <img
-                      src={profile.photoUrl || "/default-avatar.png"}
-                      alt={profile.username}
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                    <input
-                      type="file"
-                      id="photo-upload"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                    <label
-                      htmlFor="photo-upload"
-                      className="absolute bottom-0 right-0 bg-blue-900 text-white p-1 rounded-full cursor-pointer hover:bg-blue-800"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+            {profile && (
+              <div className="bg-white rounded-xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
+                  <div className="flex items-center space-x-6">
+                    <div className="relative group">
+                      <motion.img
+                        whileHover={{ scale: 1.05 }}
+                        src={profile.photoUrl || "/default-avatar.png"}
+                        alt={profile.username}
+                        className="w-24 h-24 rounded-full object-cover ring-4 ring-gradient-to-r from-blue-900 to-orange-600"
+                      />
+                      <input
+                        type="file"
+                        id="photo-upload"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                      <label
+                        htmlFor="photo-upload"
+                        className="absolute bottom-0 right-0 bg-gradient-to-r from-blue-900 to-orange-600 text-white p-2 rounded-full cursor-pointer hover:from-blue-800 hover:to-orange-500 transition-colors duration-200 transform hover:scale-110"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </label>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      </label>
+                    </div>
+                    {selectedFile && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        onClick={handlePhotoUpload}
+                        disabled={uploading}
+                        className="bg-gradient-to-r from-blue-900 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-blue-800 hover:to-orange-500 disabled:opacity-50 transition-all duration-200 transform hover:scale-105"
+                      >
+                        {uploading ? "Uploading..." : "Upload Photo"}
+                      </motion.button>
+                    )}
                   </div>
-                  {selectedFile && (
-                    <button
-                      onClick={handlePhotoUpload}
-                      disabled={uploading}
-                      className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 disabled:opacity-50"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="bg-gradient-to-r from-blue-900 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-blue-800 hover:to-orange-500 transition-all duration-200"
+                  >
+                    {isEditing ? "Cancel" : "Edit Profile"}
+                  </motion.button>
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {isEditing ? (
+                    <motion.form
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      onSubmit={handleSubmit}
+                      className="space-y-6"
                     >
-                      {uploading ? "Uploading..." : "Upload Photo"}
-                    </button>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Username
+                          </label>
+                          <input
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all duration-200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all duration-200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Phone
+                          </label>
+                          <input
+                            type="tel"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all duration-200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Address
+                          </label>
+                          <textarea
+                            name="address"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            rows="3"
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-900 focus:border-transparent transition-all duration-200"
+                          />
+                        </div>
+                      </div>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-900 to-orange-600 text-white px-8 py-3 rounded-lg hover:from-blue-800 hover:to-orange-500 transition-all duration-200"
+                      >
+                        Save Changes
+                      </motion.button>
+                    </motion.form>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                    >
+                      <InfoField label="Username" value={profile.username} />
+                      <InfoField label="Email" value={profile.email} />
+                      <InfoField
+                        label="Phone"
+                        value={profile.phoneNumber || "Not provided"}
+                      />
+                      <InfoField
+                        label="Address"
+                        value={profile.address || "Not provided"}
+                      />
+                      <InfoField
+                        label="Member Since"
+                        value={new Date(profile.createdAt).toLocaleDateString()}
+                      />
+                    </motion.div>
                   )}
-                </div>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800"
-                >
-                  {isEditing ? "Cancel" : "Edit Profile"}
-                </button>
+                </AnimatePresence>
               </div>
-
-              {isEditing ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-900 focus:ring-blue-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-900 focus:ring-blue-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-900 focus:ring-blue-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      rows="3"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-900 focus:ring-blue-900"
-                    />
-                  </div>
-
-                  <div className="flex space-x-4">
-                    <button
-                      type="submit"
-                      className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Username
-                    </h3>
-                    <p className="mt-1">{profile.username}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                    <p className="mt-1">{profile.email}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                    <p className="mt-1">
-                      {profile.phoneNumber || "Not provided"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Address
-                    </h3>
-                    <p className="mt-1">{profile.address || "Not provided"}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Member Since
-                    </h3>
-                    <p className="mt-1">
-                      {new Date(profile.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </motion.div>
         </div>
       </div>
     </div>
   );
 };
+
+const InfoField = ({ label, value }) => (
+  <div className="bg-gray-50 p-4 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-orange-50 transition-colors duration-300">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{label}</h3>
+    <p className="text-gray-900">{value}</p>
+  </div>
+);
 
 export default UserProfile;
