@@ -30,7 +30,7 @@ const Register = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3001/user/create", {
+      const response = await fetch("http://localhost:3001/api/user/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,6 +38,14 @@ const Register = () => {
         body: JSON.stringify(formData),
       });
       if (response.status === 201) {
+        const data = await response.json();
+        localStorage.setItem("authToken", data.token);
+        // Add these new lines
+        const tokenPayload = JSON.parse(atob(data.token.split(".")[1]));
+        localStorage.setItem("userId", tokenPayload.id.toString());
+        localStorage.setItem("userType", "CUSTOMER");
+        localStorage.setItem("role", "user");
+        localStorage.setItem("email", tokenPayload.email);
         navigate("/");
       } else {
         const errorData = await response.text();
@@ -307,4 +315,3 @@ const Register = () => {
 };
 
 export default Register;
-// test
