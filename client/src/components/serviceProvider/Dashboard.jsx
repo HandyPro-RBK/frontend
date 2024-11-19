@@ -6,6 +6,7 @@ import DeactivationTicker from "./DeactivationTicker";
 import FAQSection from "../Homepage/FAQSection";
 import Footer from "../Homepage/Footer";
 import AddServiceModal from "../../pages/AddService";
+import ServiceDetail from "./ServiceDetail";
 
 const Dashboardp = () => {
   const [service, setService] = useState("");
@@ -32,29 +33,32 @@ const Dashboardp = () => {
     };
 
     handleResize(); // Initial call
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const fetchServices = async () => {
     setLoading(true);
     setError(null);
     const token = localStorage.getItem("authToken");
-    
+
     try {
       const providerId = localStorage.getItem("providerId");
-      const response = await fetch(`http://127.0.0.1:3001/service/provider/${providerId}`, {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `http://127.0.0.1:3001/service/provider/${providerId}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-  
+      );
+
       if (!response.ok) throw new Error("Failed to fetch services.");
       const data = await response.json();
       setServices(data);
     } catch (error) {
-      console.error('Error fetching services:', error);
+      console.error("Error fetching services:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -85,7 +89,7 @@ const Dashboardp = () => {
   };
 
   const handleServiceClick = (id) => {
-    navigate(`/service/${id}`);
+    navigate(`/ServiceDetail/${id}`);
   };
 
   return (
@@ -101,7 +105,7 @@ const Dashboardp = () => {
       >
         <ProviderNavBar onCategorySelect={() => setIsModalOpen(true)} />
         {!isAvailable && <DeactivationTicker />}
-        
+
         {/* Hero Section */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row justify-between items-center py-8 lg:py-16 gap-8">
@@ -114,10 +118,9 @@ const Dashboardp = () => {
                 Explore Top-Rated Services Available in Your Local Area!
               </h2>
               <p className="text-lg sm:text-xl lg:text-2xl max-w-xl">
-                Easily find the best services near you, with trusted professionals at your fingertips.
+                Easily find the best services near you, with trusted
+                professionals at your fingertips.
               </p>
-              
-              
             </div>
 
             {/* Right Side - Image */}
@@ -142,7 +145,9 @@ const Dashboardp = () => {
         {/* Services List Section */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#FF9202]">List of Your Posts</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-[#FF9202]">
+              List of Your Posts
+            </h1>
           </div>
 
           {loading && (
@@ -162,7 +167,9 @@ const Dashboardp = () => {
             <div className="flex items-center justify-center">
               <button
                 className={`absolute left-0 z-10 bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  currentIndex === 0 ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                  currentIndex === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-110"
                 }`}
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
@@ -171,31 +178,37 @@ const Dashboardp = () => {
               </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-                {services.slice(currentIndex, currentIndex + itemsToShow).map((service) => (
-                  <div
-                    key={service.id}
-                    onClick={() => handleServiceClick(service.id)}
-                    className="bg-white p-4 rounded-lg shadow-lg cursor-pointer transform transition-transform hover:scale-105"
-                  >
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-semibold text-[#0A165E] line-clamp-1">{service.name}</h2>
-                      <button className="text-orange-500 text-xl">♥</button>
+                {services
+                  .slice(currentIndex, currentIndex + itemsToShow)
+                  .map((service) => (
+                    <div
+                      key={service.id}
+                      onClick={() => handleServiceClick(service.id)}
+                      className="bg-white p-4 rounded-lg shadow-lg cursor-pointer transform transition-transform hover:scale-105"
+                    >
+                      <img
+                        src={service.image}
+                        alt={service.name}
+                        className="w-full h-48 object-cover rounded-lg mb-4"
+                      />
+                      <div className="flex justify-between items-center mb-2">
+                        <h2 className="text-lg font-semibold text-[#0A165E] line-clamp-1">
+                          {service.name}
+                        </h2>
+                        <button className="text-orange-500 text-xl">♥</button>
+                      </div>
+                      <span className="inline-block bg-orange-200 text-orange-500 px-3 py-1 rounded text-sm font-semibold">
+                        See detail
+                      </span>
                     </div>
-                    <span className="inline-block bg-orange-200 text-orange-500 px-3 py-1 rounded text-sm font-semibold">
-                      See detail
-                    </span>
-                  </div>
-                ))}
+                  ))}
               </div>
 
               <button
                 className={`absolute right-0 z-10 bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  currentIndex + itemsToShow >= services.length ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                  currentIndex + itemsToShow >= services.length
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-110"
                 }`}
                 onClick={handleNext}
                 disabled={currentIndex + itemsToShow >= services.length}
@@ -209,11 +222,17 @@ const Dashboardp = () => {
           <div className="flex justify-center mt-12">
             <button
               className={`bg-orange-500 text-white py-3 px-8 rounded-full font-semibold transition-all ${
-                !isAvailable ? 'opacity-50 cursor-not-allowed' : 'hover:bg-orange-600 hover:scale-105'
+                !isAvailable
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-orange-600 hover:scale-105"
               }`}
               onClick={() => isAvailable && setIsModalOpen(true)}
               disabled={!isAvailable}
-              title={!isAvailable ? "Account must be verified to add services" : "Add your service"}
+              title={
+                !isAvailable
+                  ? "Account must be verified to add services"
+                  : "Add your service"
+              }
             >
               Add your service
             </button>
@@ -229,7 +248,7 @@ const Dashboardp = () => {
         }}
       />
 
-      <DeactivationNotice 
+      <DeactivationNotice
         isOpen={showDeactivationNotice}
         onClose={() => setShowDeactivationNotice(false)}
       />

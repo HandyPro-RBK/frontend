@@ -18,9 +18,11 @@ import Messanger from "./components/messages/Messenger";
 import Dashboardp from "./components/serviceProvider/Dashboard";
 import Requests from "./components/serviceProvider/Requests";
 import ServicePage from "./components/Homepage/ServicePage";
-import { ProfileProvider } from "./components/Homepage/ProfileContext"; // Import the ProfileProvider
+import { ProfileProvider } from "./components/Homepage/ProfileContext";
+import ContactForm from "./pages/ContactForm";
+import ServiceDetail from "../src/components/serviceProvider/ServiceDetail";
 
-import ProviderSales from "./components/payments/ProviderSales"
+import ProviderSales from "./components/payments/ProviderSales";
 const App = () => {
   return (
     <ProfileProvider>
@@ -42,7 +44,8 @@ const App = () => {
           <Route path="/profile" element={<ProviderProfile />} />
           <Route path="/messenger" element={<Messanger />} />
           <Route path="/provider/sales" element={<ProviderSales />} />
-
+          <Route path="/ContactForm" element={<ContactForm />} />
+          <Route path="/ServiceDetail/:id" element={<ServiceDetail />} />
           {/* Protected Dashboard Routes */}
           <Route
             path="/dashboard"

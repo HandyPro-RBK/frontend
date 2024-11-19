@@ -52,15 +52,6 @@ const RecommendedProjects = () => {
             />
           ))}
         </div>
-
-        <div className="flex justify-center">
-          <Link
-            to="/projects"
-            className="bg-orange-500 text-white px-8 py-3 rounded-md hover:bg-orange-600 transition-colors duration-300 text-lg font-medium"
-          >
-            Explore all projects
-          </Link>
-        </div>
       </div>
     </div>
   );

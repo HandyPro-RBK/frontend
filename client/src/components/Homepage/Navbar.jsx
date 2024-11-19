@@ -5,6 +5,7 @@ import api from "../utils/api";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { useProfile } from "../Homepage/ProfileContext";
+import logo from "../../assets/images/logo.png";
 
 const Navbar = ({ onCategorySelect }) => {
   const { profilePhotoUrl } = useProfile();
@@ -137,11 +138,7 @@ const Navbar = ({ onCategorySelect }) => {
       style={{ marginTop: "20px" }}
     >
       <div className="text-xl font-bold flex items-center">
-        <img
-          src="src/assets/images/logo.png"
-          alt="HandyPro"
-          className="h-10 w-auto"
-        />
+        <img src={logo} alt="HandyPro" className="h-10 w-auto" />
       </div>
       <ul className="flex space-x-6 text-lg">
         <li>
@@ -181,7 +178,7 @@ const Navbar = ({ onCategorySelect }) => {
           )}
         </li>
         <li>
-          <Link to="/contact">Contact</Link>
+          <Link to="/ContactForm">Contact Us</Link>
         </li>
         {isAuthenticated && (
           <li>
