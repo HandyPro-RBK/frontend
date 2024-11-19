@@ -229,7 +229,7 @@ const UserBookings = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          ${booking.service.price}
+                          {booking.service.price} dinar
                         </td>
                         <td className="px-6 py-4">
                           <Link

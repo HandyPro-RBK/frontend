@@ -3,8 +3,8 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import api from "../utils/api";
 import Navbar from "../Homepage/Navbar";
 import DashboardSidebar from "./DashboardSidebar";
-import PaymentSection from '../payments/PaymentSection';
-import PaymentStatusModal from '../payments/PaymentStatusModal';
+import PaymentSection from "../payments/PaymentSection";
+import PaymentStatusModal from "../payments/PaymentStatusModal";
 
 const BookingDetails = () => {
   const { bookingId } = useParams();
@@ -16,7 +16,10 @@ const BookingDetails = () => {
   const [rating, setRating] = useState(0);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState({ status: '', message: '' });
+  const [paymentStatus, setPaymentStatus] = useState({
+    status: "",
+    message: "",
+  });
   const [confirmationModal, setConfirmationModal] = useState({
     show: false,
     action: null,
@@ -54,15 +57,15 @@ const BookingDetails = () => {
     const payment = searchParams.get("payment");
     if (payment === "success") {
       setPaymentStatus({
-        status: 'success',
-        message: 'Your payment was processed successfully!'
+        status: "success",
+        message: "Your payment was processed successfully!",
       });
       setShowPaymentModal(true);
       fetchBookingDetails();
     } else if (payment === "failed") {
       setPaymentStatus({
-        status: 'failed',
-        message: 'Payment failed. Please try again or contact support.'
+        status: "failed",
+        message: "Payment failed. Please try again or contact support.",
       });
       setShowPaymentModal(true);
     }
@@ -289,7 +292,7 @@ const BookingDetails = () => {
                         Price:
                       </span>
                       <span className="text-gray-700">
-                        ${booking.service?.price || "N/A"}
+                        {booking.service?.price || "N/A"} dinar
                       </span>
                     </div>
                     <div className="flex items-center p-3 bg-white rounded-lg shadow-sm">
@@ -363,14 +366,17 @@ const BookingDetails = () => {
                     <p className="text-sm text-gray-500 mb-2">Scheduled for</p>
                     <p className="text-lg font-semibold text-blue-900">
                       {booking.bookingDate
-                        ? new Date(booking.bookingDate).toLocaleString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "numeric",
-                            hour12: true,
-                          })
+                        ? new Date(booking.bookingDate).toLocaleString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "numeric",
+                              hour12: true,
+                            }
+                          )
                         : "N/A"}
                     </p>
                   </div>
@@ -384,40 +390,6 @@ const BookingDetails = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Booking Actions */}
-              {booking.status === "PENDING" && (
-                <div className="md:col-span-2">
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={() =>
-                        setConfirmationModal({
-                          show: true,
-                          action: "confirm",
-                          title: "Confirm Booking",
-                          message: "Are you sure you want to confirm this booking?",
-                        })
-                      }
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Confirm Booking
-                    </button>
-                    <button
-                      onClick={() =>
-                        setConfirmationModal({
-                          show: true,
-                          action: "cancel",
-                          title: "Cancel Booking",
-                          message: "Are you sure you want to cancel this booking?",
-                        })
-                      }
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                      Cancel Booking
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* Review Section */}
               {booking.status === "COMPLETED" && !booking.review && (
@@ -482,17 +454,24 @@ const BookingDetails = () => {
                     Your Review
                   </h2>
                   <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <div className="mb-4">{renderStarRating(booking.rating)}</div>
-                    <p className="text-gray-700 mb-4 text-lg">"{booking.review}"</p>
+                    <div className="mb-4">
+                      {renderStarRating(booking.rating)}
+                    </div>
+                    <p className="text-gray-700 mb-4 text-lg">
+                      "{booking.review}"
+                    </p>
                     <div className="flex items-center text-sm text-gray-500">
                       <span className="mr-2">📅</span>
                       Posted on{" "}
                       {booking.reviewDate
-                        ? new Date(booking.reviewDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })
+                        ? new Date(booking.reviewDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )
                         : "N/A"}
                     </div>
                   </div>

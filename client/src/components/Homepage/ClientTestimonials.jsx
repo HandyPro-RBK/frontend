@@ -7,49 +7,49 @@ const ClientTestimonials = () => {
     {
       id: 1,
       text: "The service was exceptional! The professional arrived on time and completed the job with remarkable attention to detail. I couldn't be happier with the results.",
-      author: "Sarah Chen",
+      author: "Sarah ",
       avatar: "src/assets/images/Sarah.png",
     },
     {
       id: 2,
       text: "I found exactly what I needed through this platform. The booking process was smooth, and the service provider was highly skilled. Will definitely use again!",
-      author: "Michael Rodriguez",
+      author: "Mohamed",
       avatar: "src/assets/images/Michael.png",
     },
     {
       id: 3,
       text: "Outstanding experience from start to finish. The customer service was responsive, and the professional they matched me with exceeded my expectations.",
-      author: "Emma Thompson",
+      author: "Emma",
       avatar: "src/assets/images/Emma.png",
     },
     {
       id: 4,
       text: "This platform has changed the way I find services! The professionals are reliable and the process is seamless.",
-      author: "David Brown",
+      author: "Ahmed",
       avatar: "src/assets/images/David.png",
     },
     {
       id: 5,
       text: "I appreciate the transparency and professionalism I experienced. Will definitely recommend to others!",
-      author: "Lisa White",
+      author: "Leila",
       avatar: "src/assets/images/Lisa.png",
     },
     {
       id: 6,
       text: "A game changer in finding home services. Every experience has been positive, and the quality is top-notch.",
-      author: "John Smith",
+      author: "Ali",
       avatar: "src/assets/images/John.png",
     },
     {
       id: 7,
       text: "This service has been a lifesaver! I highly recommend it to anyone looking for reliable help around the house.",
-      author: "Jessica Wilson",
+      author: "Ahlem",
       avatar: "src/assets/images/Jessica.png",
     },
     {
       id: 8,
       text: "I had a wonderful experience! The service provider was professional and went above and beyond.",
-      author: "Maria Lopez",
+      author: "chaima",
       avatar: "src/assets/images/Maria.png",
     },
     {
@@ -137,13 +137,6 @@ const ClientTestimonials = () => {
               aria-label={`View testimonial from ${testimonials[index].author}`}
             />
           ))}
-        </div>
-
-        {/* CTA Button */}
-        <div className="text-center mt-12">
-          <button className="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition-colors duration-300 font-semibold">
-            Contact us
-          </button>
         </div>
       </div>
     </div>

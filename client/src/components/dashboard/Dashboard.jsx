@@ -187,7 +187,7 @@ const Dashboard = () => {
                       </td>
                       <td className="py-4 px-6">
                         <span className="font-medium text-blue-900">
-                          ${booking.service.price}
+                          {booking.service.price} dinar
                         </span>
                       </td>
                       <td className="py-4 px-6">

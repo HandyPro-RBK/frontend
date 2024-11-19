@@ -10,17 +10,149 @@ import {
   Shield,
   Award,
   ThumbsUp,
+  X,
 } from "lucide-react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import BookingForm from "./BookingForm";
 import api from "../utils/api";
 
+// Review Modal Component (included in same file for demonstration)
+const ReviewModal = ({ serviceId, onClose, onSuccess }) => {
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!rating) {
+      alert("Please select a rating");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Create new review object
+      const newReview = {
+        id: Date.now(),
+        rating,
+        comment,
+        user: {
+          username: "Current User",
+          photoUrl: "https://via.placeholder.com/80x80?text=User",
+        },
+        createdAt: new Date().toISOString(),
+      };
+
+      onSuccess(newReview);
+
+      // Show success message
+      const successModal = document.createElement("div");
+      successModal.className =
+        "fixed inset-0 flex items-center justify-center z-50";
+      successModal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 shadow-xl transform transition-all duration-500 ease-in-out">
+          <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Review Submitted!</h3>
+            <p class="text-gray-500">Thank you for your feedback</p>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(successModal);
+
+      setTimeout(() => {
+        successModal.remove();
+        onClose();
+      }, 2000);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Failed to submit review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-6 w-6" />
+        </button>
+
+        <h3 className="text-2xl font-semibold text-blue-900 mb-6">
+          Write a Review
+        </h3>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-gray-700 mb-2">Rating</label>
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoveredRating(star)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="focus:outline-none"
+                >
+                  <Star
+                    className={`h-8 w-8 ${
+                      star <= (hoveredRating || rating)
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-2">Comment</label>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows="4"
+              placeholder="Share your experience..."
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-blue-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? "Submitting..." : "Submit Review"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const ServicePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [service, setService] = useState(null);
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
@@ -109,6 +241,19 @@ const ServicePage = () => {
     }
   };
 
+  const handleReviewSuccess = (newReview) => {
+    // Update the service state with the new review
+    setService((prev) => ({
+      ...prev,
+      reviews: [newReview, ...(prev.reviews || [])],
+      // Update average rating
+      averageRating: prev.reviews
+        ? (prev.averageRating * prev.reviews.length + newReview.rating) /
+          (prev.reviews.length + 1)
+        : newReview.rating,
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -161,8 +306,8 @@ const ServicePage = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Hero Section */}
           <div className="relative h-[600px]">
             <img
               src={service.image}
@@ -341,13 +486,32 @@ const ServicePage = () => {
                     <Calendar className="h-6 w-6" />
                     <span>Book Now</span>
                   </button>
-
                   <button
                     onClick={handleContactClick}
                     className="w-full bg-white text-orange-600 py-4 px-6 rounded-lg font-medium border-2 border-orange-600 hover:bg-orange-50 transition-colors flex items-center justify-center space-x-3 text-lg"
                   >
                     <MessageCircle className="h-6 w-6" />
                     <span>Contact Provider</span>
+                  </button>
+                  Add Review Button
+                  <button
+                    onClick={() => {
+                      const token = localStorage.getItem("authToken");
+                      if (!token) {
+                        const confirmLogin = window.confirm(
+                          "Please log in to leave a review. Would you like to go to the login page?"
+                        );
+                        if (confirmLogin) {
+                          navigate("/login-user");
+                        }
+                        return;
+                      }
+                      setIsReviewModalOpen(true);
+                    }}
+                    className="w-full bg-white text-gray-600 py-4 px-6 rounded-lg font-medium border-2 border-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3 text-lg"
+                  >
+                    <Star className="h-6 w-6" />
+                    <span>Add Review</span>
                   </button>
                 </div>
 
@@ -382,6 +546,14 @@ const ServicePage = () => {
           serviceId={service.id}
           providerId={service.providerId}
           onClose={() => setIsBookingFormOpen(false)}
+        />
+      )}
+
+      {isReviewModalOpen && (
+        <ReviewModal
+          serviceId={service.id}
+          onClose={() => setIsReviewModalOpen(false)}
+          onSuccess={handleReviewSuccess}
         />
       )}
 

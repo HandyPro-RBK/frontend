@@ -163,7 +163,7 @@ const ProviderNavBar = () => {
               >
                 History
               </Link>
-              
+
               <Link
                 to="/messenger"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium relative"
@@ -174,6 +174,12 @@ const ProviderNavBar = () => {
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
+              </Link>
+              <Link
+                to="/ContactForm"
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium relative"
+              >
+                Contact Us
               </Link>
             </div>
 
@@ -206,7 +212,7 @@ const ProviderNavBar = () => {
                     >
                       Profile
                     </Link>
-                    
+
                     <button
                       onClick={() => {
                         handleLogout();
